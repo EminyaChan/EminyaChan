@@ -1,0 +1,295 @@
+// AI Marketing Studio — data model
+// Postgres in production/dev (DATABASE_URL). Swap the datasource provider to
+// "sqlite" for a zero-infra local run if no Postgres instance is available.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth / accounts
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  brands            Brand[]
+  contents          Content[]
+  templates         Template[]
+  generationHistory GenerationHistory[]
+  settings          Settings?
+}
+
+// ---------------------------------------------------------------------------
+// Brand profile — reused as default context for generation
+// ---------------------------------------------------------------------------
+
+model Brand {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String
+  description       String?
+  industry          String?
+  targetAudience    String?
+  voice             String? // brand tone/voice description
+  preferredLanguages String[] @default([])
+  preferredPlatforms String[] @default([])
+  sellingPoints     String[] @default([])
+  forbiddenWords    String[] @default([])
+  preferredCta      String?
+  website           String?
+  socialAccounts    Json? // { instagram: "...", xiaohongshu: "...", ... }
+  isDefault         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  contents Content[]
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Industries — presets that seed default tone / angles / CTAs
+// ---------------------------------------------------------------------------
+
+model Industry {
+  id               String   @id @default(cuid())
+  key              String   @unique // slug, e.g. "restaurant"
+  name             String
+  description      String?
+  defaultTone      String?
+  defaultAudience  String?
+  contentAngles    String[] @default([])
+  hooks            String[] @default([])
+  ctaStyles        String[] @default([])
+  objectives       String[] @default([])
+  isCustom         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  templates Template[]
+}
+
+// ---------------------------------------------------------------------------
+// Templates — reusable generation presets, industry-linked or custom
+// ---------------------------------------------------------------------------
+
+model Template {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  industryId  String?
+  industry    Industry? @relation(fields: [industryId], references: [id], onDelete: SetNull)
+  name        String
+  description String?
+  platform    String?
+  contentType String?
+  tone        String?
+  promptHints String? // extra special-instruction text merged into the prompt builder
+  isSystem    Boolean  @default(false) // seeded, not user-owned
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([industryId])
+}
+
+// ---------------------------------------------------------------------------
+// Content — the core generated marketing asset, with version history
+// ---------------------------------------------------------------------------
+
+enum ContentStatus {
+  DRAFT
+  GENERATED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Platform {
+  XIAOHONGSHU
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+  LINKEDIN
+  GOOGLE_ADS
+  CUSTOM
+}
+
+enum ContentType {
+  SOCIAL_POST
+  ADVERTISEMENT
+  PRODUCT_DESCRIPTION
+  VIDEO_SCRIPT
+  PROMOTIONAL_COPY
+  HEADLINE
+  CTA
+}
+
+model Content {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brandId        String?
+  brand          Brand?        @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  title          String
+  platform       Platform
+  industry       String?
+  contentType    ContentType
+  targetAudience String?
+  status         ContentStatus @default(GENERATED)
+  isFavorite     Boolean       @default(false)
+  tags           String[]      @default([])
+
+  // Denormalized "current" body for fast list rendering — always mirrors
+  // the latest ContentVersion so the library doesn't need a join to render.
+  body     String
+  cta      String?
+  hashtags String[] @default([])
+  // Xiaohongshu-specific structured sections, null for other platforms
+  sections Json?
+  // The original GenerationContext used to create this content, so
+  // regeneration (full or per-section) can rebuild an equivalent prompt
+  // without asking the user to re-enter business information.
+  generationInputs Json?
+
+  currentVersionNumber Int @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  versions          ContentVersion[]
+  images            GeneratedImage[]
+  videos            GeneratedVideo[]
+  generationHistory GenerationHistory[]
+
+  @@index([userId])
+  @@index([platform])
+  @@index([contentType])
+  @@index([status])
+}
+
+model ContentVersion {
+  id            String   @id @default(cuid())
+  contentId     String
+  content       Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  versionNumber Int
+  title         String
+  body          String
+  cta           String?
+  hashtags      String[] @default([])
+  sections      Json?
+  changeNote    String? // e.g. "Regenerated hook", "Full regeneration"
+  createdAt     DateTime @default(now())
+
+  @@unique([contentId, versionNumber])
+  @@index([contentId])
+}
+
+// ---------------------------------------------------------------------------
+// Generated media
+// ---------------------------------------------------------------------------
+
+enum MediaStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model GeneratedImage {
+  id          String      @id @default(cuid())
+  contentId   String?
+  content     Content?    @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  prompt      String
+  style       String?
+  aspectRatio String?
+  textOverlay String?
+  provider    String?
+  model       String?
+  url         String?
+  status      MediaStatus @default(PENDING)
+  error       String?
+  createdAt   DateTime    @default(now())
+
+  @@index([contentId])
+}
+
+model GeneratedVideo {
+  id          String      @id @default(cuid())
+  contentId   String?
+  content     Content?    @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  title       String?
+  plan        Json // structured hook/scenes/cta plan, always generated
+  caption     String?
+  hashtags    String[]    @default([])
+  thumbnailPrompt String?
+  provider    String?
+  model       String?
+  url         String? // null until a real video-gen API is connected
+  status      MediaStatus @default(PENDING)
+  error       String?
+  createdAt   DateTime    @default(now())
+
+  @@index([contentId])
+}
+
+// ---------------------------------------------------------------------------
+// Generation history — audit/billing trail for every AI call
+// ---------------------------------------------------------------------------
+
+enum GenerationType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+enum GenerationStatus {
+  SUCCESS
+  ERROR
+  FALLBACK
+}
+
+model GenerationHistory {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentId      String?
+  content        Content?         @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  type           GenerationType
+  provider       String
+  model          String?
+  status         GenerationStatus
+  promptTokens   Int?
+  completionTokens Int?
+  estimatedCostUsd Float?
+  errorMessage   String?
+  durationMs     Int?
+  createdAt      DateTime         @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Per-user settings
+// ---------------------------------------------------------------------------
+
+model Settings {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultTextProvider  String?
+  defaultImageProvider String?
+  defaultVideoProvider String?
+  defaultLanguage      String  @default("English")
+  updatedAt            DateTime @updatedAt
+}
