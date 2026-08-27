@@ -23,6 +23,7 @@
     "@anthropic-ai/sdk": "^0.121.0",
     "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "openai": "^7.7.0"
   }
 }

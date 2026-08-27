@@ -25,11 +25,19 @@ npm install
 cp .env.example .env
 ```
 
-Optional but recommended — open `.env` and add an Anthropic API key
-(`ANTHROPIC_API_KEY=...`, from https://console.anthropic.com/) so the agent
-writes the posts using AI instead of the built-in template. **Without a
-key, the app still works end-to-end** — it just fills in posts using a
-simpler, more repetitive template, so the drafts are more generic.
+Optional but recommended — open `.env` and add **one** of:
+
+- `OPENAI_API_KEY=...` (from https://platform.openai.com/api-keys), or
+- `ANTHROPIC_API_KEY=...` (from https://console.anthropic.com/)
+
+so the agent writes the posts using real AI instead of the built-in
+template. If you set both, it uses OpenAI by default — set `AI_PROVIDER=anthropic`
+in `.env` to prefer the other one instead. **Without either key, the app
+still works end-to-end** — it just fills in posts using a simpler, more
+repetitive template, so the drafts are more generic. If an AI call ever
+fails (bad key, no network, rate limit), the agent automatically falls
+back to the template for that item and shows exactly why on the
+dashboard — it never blocks or crashes the run.
 
 ## 2. Weekly routine (what you do every week)
 
@@ -134,8 +142,17 @@ tone defaults, or file format now, before you're depending on it weekly.
 2. **Confirmation of the output format** (see above) — title options,
    summary, one post per channel, Markdown file. Say the word if you'd
    rather have plain text, a Word doc, or a different structure.
-3. **An Anthropic API key**, if you want AI-written drafts instead of the
-   template fallback (optional — the app runs without one).
+3. **An OpenAI or Anthropic API key**, if you want AI-written drafts
+   instead of the template fallback (optional — the app runs without
+   one). You already gave me an OpenAI key — the integration is built and
+   the code path is proven to fall back safely, but I could not complete
+   a real end-to-end AI test from this sandbox because its network policy
+   blocks outbound calls to `api.openai.com`. Add the key to your own
+   `.env` when you run this on your own machine (which won't have that
+   restriction) and it will call OpenAI directly — no code changes
+   needed. Treat the key you pasted in chat as exposed since it went
+   through plaintext chat; consider rotating it in your OpenAI dashboard
+   before using it for real.
 4. **Brand/voice guidance**, if you have it (a style guide, banned words,
    preferred hashtags) — right now tone comes only from the `tone` column
    per campaign; I can wire in a standing brand voice if you give me one.

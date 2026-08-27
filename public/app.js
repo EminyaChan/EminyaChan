@@ -70,9 +70,12 @@ function renderPost(post) {
   </div>`;
 }
 
+const SOURCE_LABELS = { openai: 'Drafted by OpenAI', anthropic: 'Drafted by Anthropic', template: 'Drafted by built-in template (no AI key configured)' };
+
 function renderItem(runId, item) {
   const warnings = item.warnings && item.warnings.length ? `<div class="warnings">Note: ${item.warnings.map(esc).join(' | ')}</div>` : '';
   const aiError = item.draft.aiError ? `<div class="warnings">AI drafting failed, used fallback template: ${esc(item.draft.aiError)}</div>` : '';
+  const sourceLabel = SOURCE_LABELS[item.draft.source] || item.draft.source;
   const actions = item.status === 'pending_review'
     ? `<div class="actions">
         <input type="text" placeholder="Optional note" id="note-${item.id}" />
@@ -86,6 +89,7 @@ function renderItem(runId, item) {
       <div>
         <h3>${esc(item.campaign_name)}</h3>
         <span class="badge ${item.status === 'pending_review' ? 'pending' : item.status}">${esc(item.status.replace('_', ' '))}</span>
+        <span class="meta">&middot; ${esc(sourceLabel)}</span>
       </div>
     </div>
     ${warnings}

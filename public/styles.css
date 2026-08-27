@@ -78,6 +78,7 @@ main {
 .run-row.active { background: #efe4d3; }
 .run-row .date { font-weight: 600; }
 .run-row .meta { color: var(--muted); font-size: 12px; }
+.meta { color: var(--muted); font-size: 12px; }
 
 .content { display: flex; flex-direction: column; gap: 18px; }
 
