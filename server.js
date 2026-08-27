@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const { listRuns, loadRun, updateItemStatus, exportApprovedItem } = require('./lib/store');
 const { readLog } = require('./lib/log');
-const { runDailyAgent } = require('./run-daily');
+const { runWeeklyAgent } = require('./run-weekly');
 
 const app = express();
 app.use(express.json());
@@ -42,7 +42,7 @@ app.post('/api/runs/:id/items/:itemId/reject', (req, res) => {
 
 app.post('/api/run-now', async (req, res) => {
   try {
-    const run = await runDailyAgent();
+    const run = await runWeeklyAgent();
     res.json(run);
   } catch (err) {
     res.status(500).json({ error: err.message });

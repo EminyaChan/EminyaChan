@@ -8,14 +8,13 @@ This guide assumes no coding background. Everything below is plain steps.
 
 ## What it actually does, in one paragraph
 
-Every day, you drop a campaign export (a spreadsheet/CSV or JSON file) into
-the `inbox` folder — or just leave it there from the day before. The agent
-reads it, checks each campaign has the basics it needs, and writes draft
-social posts for each one. You open a simple web page, read the drafts, and
-click **Approve** or **Reject** on each. An approved draft is saved as a
-clean, ready-to-copy file you paste straight into LinkedIn/Instagram/etc.
-Nothing gets posted automatically — you are always the last step before
-anything goes out.
+Every week, you drop a campaign export (a spreadsheet/CSV or JSON file) into
+the `inbox` folder. The agent reads it, checks each campaign has the basics
+it needs, and writes draft social posts for each one. You open a simple
+web page, read the drafts, and click **Approve** or **Reject** on each. An
+approved draft is saved as a clean, ready-to-copy file you paste straight
+into LinkedIn/Instagram/etc. Nothing gets posted automatically — you are
+always the last step before anything goes out.
 
 ## 1. One-time setup
 
@@ -40,16 +39,15 @@ fails (bad key, no network, rate limit), the agent automatically falls
 back to the template for that item and shows exactly why on the
 dashboard — it never blocks or crashes the run.
 
-## 2. Daily routine (what you do every day)
+## 2. Weekly routine (what you do every week)
 
 1. Export your campaign list from wherever you plan campaigns (spreadsheet,
    HubSpot, Mailchimp, Notion, etc.) as a `.csv` or `.json` file. See the
    exact format below.
-2. Drop that file into the `inbox` folder. (If there's nothing new, skip
-   this — the agent just reports "no new files" and does nothing that day.)
+2. Drop that file into the `inbox` folder.
 3. Run:
    ```
-   npm run daily
+   npm run weekly
    ```
    (Or click **Run now** on the dashboard — see step 4 — which does the
    same thing.)
@@ -93,28 +91,26 @@ exact reason** — the agent never guesses a goal, audience, or message that
 wasn't given. You'll see skipped rows called out at the bottom of the
 dashboard for that run.
 
-## 4. The daily schedule
+## 4. The weekly schedule
 
-A scheduled trigger runs the agent automatically every day at 08:00 UTC.
-It does the drafting step only — you still open the dashboard to review
-and approve. If the inbox is empty that day, the run simply logs "no new
-files" and does nothing else — running with no new campaign export is not
-an error.
+A scheduled trigger has been set up to run the agent automatically every
+Monday. It does the drafting step only — you still open the dashboard to
+review and approve.
 
-**Important:** this automated daily run happens in a cloud sandbox whose
+**Important:** this automated Monday run happens in a cloud sandbox whose
 network policy allows `api.anthropic.com` but blocks `api.openai.com`.
 Since you're using an OpenAI key, the automated run will always use the
 built-in template generator, not real AI drafting — that's a deliberate,
 working fallback, not a bug, and you'll see "Drafted by built-in template"
 on those items. If you want genuinely AI-written drafts, run
 ```
-npm run daily
+npm run weekly
 ```
 yourself on your own machine (with `OPENAI_API_KEY` in your local `.env`)
-whenever you're ready to review that day's campaigns — there's no network
+whenever you're ready to review that week's campaigns — there's no network
 restriction there. If you later get an Anthropic key instead, put it in
 this environment's own environment-variable settings (not a committed
-file) and the automated daily run will pick it up and start drafting with
+file) and the automated Monday run will pick it up and start drafting with
 real AI on its own.
 
 ## 5. The run log
@@ -125,42 +121,31 @@ dashboard, so you can always see what happened without digging into files.
 
 ## The live test run already in this repo
 
-Two sample runs are already in this repo, using made-up demo data (no real
-campaigns) so you can see the whole pipeline working before connecting
-anything real.
+I ran the agent once against a realistic 4-campaign sample export
+(`inbox/sample-campaigns.csv`, now archived to `inbox/archive/`) to prove
+the whole pipeline end-to-end:
 
-**Demo run** (`inbox/demo-campaigns.csv`, now archived to `inbox/archive/`)
-— five varied campaign types, to show the range of content this agent
-handles:
+- **3 campaigns drafted** (Autumn Product Launch, Customer Spotlight
+  Series, Partner Webinar) — each with 3 title options, a summary, and a
+  post per channel.
+- **1 row skipped on purpose** ("Regional Roadshow" — missing `goal`), to
+  prove the validator catches missing data instead of guessing.
+- **1 warning surfaced on purpose** (Partner Webinar listed "Threads" and
+  "Pinterest", which aren't in the default channel list) — it still
+  generated a generic-format post for them and flagged the warning.
+- I then approved "Autumn Product Launch" (exported to
+  `data/approved/autumn-product-launch-2026-08-27/ready-to-publish.md`)
+  and rejected "Customer Spotlight Series" with a note, to prove both
+  paths work. "Partner Webinar" is left pending for you to try.
 
-- **4 campaigns drafted**, each with 3 title options, a summary, and a post
-  per channel: a toolkit download ("Back-to-Business Toolkit"), a customer
-  case study ("Customer Story: Riverbend Cafe"), an event promo ("Live
-  Product Demo Webinar"), and a referral program ("Fall Referral Bonus",
-  which included a `TikTok` channel to show a fifth platform working).
-- **1 row skipped on purpose** ("Regional Meetup Series" — missing `goal`),
-  to prove the validator catches missing data instead of guessing.
-- "Back-to-Business Toolkit" was then **approved** (exported to
-  `data/approved/back-to-business-toolkit-2026-08-27/ready-to-publish.md`)
-  and "Live Product Demo Webinar" was **rejected** with a note ("want a
-  stronger CTA before this goes out"), to prove both review paths work end
-  to end. "Customer Story" and "Fall Referral Bonus" are left pending for
-  you to try approving/rejecting yourself.
-
-An earlier, smaller sample run (`inbox/sample-campaigns.csv`) is also still
-in the repo, with its own approved output at
-`data/approved/autumn-product-launch-2026-08-27/ready-to-publish.md`.
-
-Run `npm start` and open http://localhost:3000 to see either run for
-yourself, or open
-`data/approved/back-to-business-toolkit-2026-08-27/ready-to-publish.md`
+Run `npm start` and open http://localhost:3000 to see this run for
+yourself, or open `data/approved/autumn-product-launch-2026-08-27/ready-to-publish.md`
 directly to see the finished, ready-to-copy output.
 
-**The output format (title options + summary + per-channel posts, exported
-as one Markdown file per approved campaign) has already been confirmed** —
-it was approved on the dashboard against this live sample. Say the word if
-you'd rather have plain text, a Word doc, or a different structure, and
-it's easy to change.
+**Please confirm this output format works for you** (title options +
+summary + per-channel posts, exported as one Markdown file per approved
+campaign) before you rely on it — it's easy for me to change the shape,
+tone defaults, or file format now, before you're depending on it weekly.
 
 ## What I still need from you
 
@@ -169,25 +154,28 @@ it's easy to change.
    tool you currently plan campaigns in. If that tool isn't a
    spreadsheet, tell me which one and I can help you get a matching
    export.
-2. **Nothing further for now on the API key** — decision made: you're
+2. **Confirmation of the output format** (see above) — title options,
+   summary, one post per channel, Markdown file. Say the word if you'd
+   rather have plain text, a Word doc, or a different structure.
+3. **Nothing further for now on the API key** — decision made: you're
    staying on OpenAI. The integration is built and proven to fall back
    safely (confirmed live: a real call to `api.openai.com` from this
    sandbox got blocked by network policy, and the app correctly fell back
    to the template and showed the exact error instead of crashing).
    Practically, that means:
-   - The automated daily Routine (runs in this same restricted sandbox)
+   - The automated Monday Routine (runs in this same restricted sandbox)
      will keep using the template fallback — real AI drafting isn't
      reachable for OpenAI from there.
-   - Run `npm run daily` yourself on your own machine, with your OpenAI
+   - Run `npm run weekly` yourself on your own machine, with your OpenAI
      key in your local `.env`, whenever you want real AI-written drafts —
      no restriction there.
    - If that changes (e.g. you later get an Anthropic key), say so and
      I'll wire it into the automated Routine — `api.anthropic.com` **is**
      reachable from this sandbox, unlike OpenAI's.
-   Treat the two OpenAI keys you pasted in chat earlier as exposed since
-   they went through plaintext chat; consider rotating them in your OpenAI
-   dashboard before using it for real.
-3. **Brand/voice guidance**, if you have it (a style guide, banned words,
+   Treat the two OpenAI keys you pasted in chat as exposed since they went
+   through plaintext chat; consider rotating them in your OpenAI dashboard
+   before using it for real.
+4. **Brand/voice guidance**, if you have it (a style guide, banned words,
    preferred hashtags) — right now tone comes only from the `tone` column
    per campaign; I can wire in a standing brand voice if you give me one.
 
@@ -198,18 +186,18 @@ it's easy to change.
   your social platforms. That keeps a human as the last check before
   anything public goes out, which matches the "medium risk, needs
   approval" instruction this was built to.
-- **Opening the dashboard.** The drafting step runs on schedule every day,
-  but someone still needs to open http://localhost:3000 and click through.
-  If you'd rather get a message instead of having to remember to check,
-  tell me and I can add a daily reminder.
+- **Opening the dashboard each week.** The drafting step runs on
+  schedule, but someone still needs to open http://localhost:3000 and
+  click through. If you'd rather get a message instead of having to
+  remember to check, tell me and I can add a weekly reminder.
 - **Exporting the campaign list from your marketing tool.** Unless you
   tell me which tool and give it API access, this is a manual export step
-  whenever you have a new campaign.
+  each week.
 
 ## Project structure (for reference)
 
 ```
-run-daily.js      the daily agent: reads inbox/, validates, drafts, logs
+run-weekly.js     the weekly agent: reads inbox/, validates, drafts, logs
 server.js         the review dashboard (Express server)
 lib/parseInput.js validates campaign rows, never guesses missing data
 lib/generate.js   drafts titles/summary/posts (AI if key set, else template)

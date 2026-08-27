@@ -1,11 +1,11 @@
 {
   "name": "marketing-content-agent",
   "version": "1.0.0",
-  "description": "Daily Marketing Content Agent: turns campaign briefs into ready-to-review social drafts.",
+  "description": "Weekly Marketing Content Agent: turns campaign briefs into ready-to-review social drafts.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "daily": "node run-daily.js",
+    "weekly": "node run-weekly.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
