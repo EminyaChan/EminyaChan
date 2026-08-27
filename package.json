@@ -1,0 +1,28 @@
+{
+  "name": "marketing-content-agent",
+  "version": "1.0.0",
+  "description": "Weekly Marketing Content Agent: turns campaign briefs into ready-to-review social drafts.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "weekly": "node run-weekly.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EminyaChan/EminyaChan.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EminyaChan/EminyaChan/issues"
+  },
+  "homepage": "https://github.com/EminyaChan/EminyaChan#readme",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.121.0",
+    "csv-parse": "^7.0.2",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
