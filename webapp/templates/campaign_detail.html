@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ campaign.name }} — Marketing Content Agent{% endblock %}
+{% block content %}
+
+<div class="detail-header">
+  <h1>{{ campaign.name }}</h1>
+  <span class="status-pill status-{{ campaign.status|replace(' ', '') }}">{{ campaign.status }}</span>
+</div>
+
+<details class="brief-editor" {% if not draft %}open{% endif %}>
+  <summary>Brief &amp; details</summary>
+  <form method="post" action="{{ url_for('main.edit_campaign', campaign_id=campaign.id) }}" class="card-form">
+    <label>Campaign name</label>
+    <input type="text" name="name" value="{{ campaign.name }}" required>
+
+    <label>Brief</label>
+    <textarea name="brief" rows="5" required>{{ campaign.brief }}</textarea>
+
+    <label>Platforms</label>
+    <div class="checkbox-row">
+      {% for p in ['LinkedIn', 'Instagram', 'Facebook', 'X', 'Blog'] %}
+      <label class="checkbox-pill"><input type="checkbox" name="platforms" value="{{ p }}" {% if p in campaign.platform_list() %}checked{% endif %}> {{ p }}</label>
+      {% endfor %}
+    </div>
+
+    <label>Due date</label>
+    <input type="date" name="due_date" value="{{ campaign.due_date }}">
+
+    <label>Notes</label>
+    <textarea name="notes" rows="2">{{ campaign.notes }}</textarea>
+
+    <button class="btn btn-secondary" type="submit">Save changes</button>
+  </form>
+</details>
+
+<div class="action-row">
+  <form method="post" action="{{ url_for('main.generate', campaign_id=campaign.id) }}">
+    <button class="btn btn-primary" type="submit">{{ 'Regenerate' if draft else 'Generate content' }}</button>
+  </form>
+  {% if campaign.status == 'Drafted' %}
+  <form method="post" action="{{ url_for('main.approve', campaign_id=campaign.id) }}">
+    <button class="btn btn-approve" type="submit">Approve</button>
+  </form>
+  {% elif campaign.status == 'Approved' %}
+  <form method="post" action="{{ url_for('main.mark_published', campaign_id=campaign.id) }}">
+    <button class="btn btn-approve" type="submit">Mark published</button>
+  </form>
+  {% endif %}
+  <form method="post" action="{{ url_for('main.delete_campaign', campaign_id=campaign.id) }}" onsubmit="return confirm('Delete this campaign? This cannot be undone.');">
+    <button class="btn btn-danger" type="submit">Delete</button>
+  </form>
+</div>
+
+{% if draft %}
+<section class="draft">
+  <div class="draft-header">
+    <h2>Draft</h2>
+    {% if campaign.draft_source == 'offline-fallback' %}
+      <span class="badge fallback">offline fallback draft</span>
+    {% elif campaign.draft_source == 'openai-api' %}
+      <span class="badge ai">OpenAI-drafted</span>
+    {% elif campaign.draft_source == 'claude-api' %}
+      <span class="badge ai">Claude-drafted</span>
+    {% endif %}
+  </div>
+
+  {% if campaign.draft_warnings() %}
+    <ul class="warnings">
+      {% for w in campaign.draft_warnings() %}<li>{{ w }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  <p class="summary">{{ draft.summary }}</p>
+
+  <h3>Title options</h3>
+  <ul>{% for t in draft.title_options %}<li>{{ t }}</li>{% endfor %}</ul>
+
+  <h3>Ready-to-post drafts</h3>
+  {% for platform, post in draft.posts.items() %}
+  <div class="post">
+    <div class="post-header">
+      <strong>{{ platform }}</strong>
+      <button type="button" class="copy-btn" data-caption="{{ post.caption }}" data-hashtags="{{ post.hashtags|join(' ') }}">Copy</button>
+    </div>
+    <pre>{{ post.caption }}</pre>
+    {% if post.hashtags %}<p class="hashtags">{{ post.hashtags|join(' ') }}</p>{% endif %}
+  </div>
+  {% endfor %}
+
+  {% if draft.blog_draft %}
+  <div class="post">
+    <div class="post-header">
+      <strong>Blog / announcement draft</strong>
+      <button type="button" class="copy-btn" data-caption="{{ draft.blog_draft }}" data-hashtags="">Copy</button>
+    </div>
+    <pre>{{ draft.blog_draft }}</pre>
+  </div>
+  {% endif %}
+</section>
+{% else %}
+<p class="empty-state">No draft yet. Click "Generate content" above.</p>
+{% endif %}
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const text = btn.dataset.hashtags ? btn.dataset.caption + '\n\n' + btn.dataset.hashtags : btn.dataset.caption;
+    navigator.clipboard.writeText(text);
+  });
+});
+</script>
+{% endblock %}

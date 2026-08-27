@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign in — Marketing Content Agent</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="center-page">
+  <form class="login-card" method="post">
+    <h1>Marketing Content Agent</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    <label>Password</label>
+    <input type="password" name="password" autofocus required>
+    <button class="btn btn-primary" type="submit">Sign in</button>
+  </form>
+</body>
+</html>

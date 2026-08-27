@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}New campaign — Marketing Content Agent{% endblock %}
+{% block content %}
+<h1>New campaign</h1>
+<form method="post" class="card-form">
+  <label>Campaign name</label>
+  <input type="text" name="name" value="{{ form.get('name', '') }}" required>
+
+  <label>Brief <span class="hint">what's happening, key message, audience, tone — the more specific, the better the draft</span></label>
+  <textarea name="brief" rows="5" required>{{ form.get('brief', '') }}</textarea>
+
+  <label>Platforms</label>
+  <div class="checkbox-row">
+    {% for p in platform_choices %}
+    <label class="checkbox-pill"><input type="checkbox" name="platforms" value="{{ p }}" {% if p in ['LinkedIn','Instagram','Facebook'] %}checked{% endif %}> {{ p }}</label>
+    {% endfor %}
+  </div>
+
+  <label>Due date <span class="hint">optional</span></label>
+  <input type="date" name="due_date" value="{{ form.get('due_date', '') }}">
+
+  <label>Notes <span class="hint">optional</span></label>
+  <textarea name="notes" rows="2">{{ form.get('notes', '') }}</textarea>
+
+  <button class="btn btn-primary" type="submit">Save campaign</button>
+</form>
+{% endblock %}

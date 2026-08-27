@@ -1,119 +1,127 @@
 # Marketing Content Agent
 
-Turns a short campaign brief sitting in your Google Sheet into ready-to-post
-drafts (titles, summary, platform captions, hashtags, and a blog draft) —
-automatically, once a week. You review a single web page and approve; the
-agent does the writing.
+An always-on app you open from a browser link anytime: add a campaign brief,
+click Generate, review the ready-to-post drafts (titles, summary, per-platform
+captions + hashtags, blog draft), then Approve. It does the writing; you do
+the reviewing. Nothing ever posts automatically — approving and "mark
+published" are both just status tracking inside the app.
 
-## What it does, in plain English
+There are two parts in this repo:
 
-1. Once a week (Monday 08:00 UTC by default), it opens your **Campaigns**
-   Google Sheet and finds every row marked `To Do`.
-2. For each one, it checks the row makes sense (has a name and a brief). If
-   something's missing or messy, it skips that row and tells you exactly
-   why instead of guessing.
-3. For everything valid, it writes: 3 title options, a one-line summary, a
-   ready-to-post caption + hashtags for each platform you listed, and a
-   short blog draft if you asked for one.
-4. It saves all of that as one review webpage (`output/<date>/index.html`)
-   you can open in any browser — no login, nothing to install.
-5. It marks each row `Drafted` in your sheet (never `Published` — that part
-   always stays manual).
-6. It writes one line to `logs/run_log.jsonl` recording what it did, so you
-   can look back at any past run.
+- **`webapp/`** — the app itself (this is what you asked for: open it anytime, create and manage campaigns, generate on demand). **Start here.**
+- **`src/`** — an earlier, optional headless version that reads campaigns from a Google Sheet and runs once a week via GitHub Actions with no UI. Keep it if you specifically want a scheduled batch run with zero clicking; otherwise you can ignore it. See "Optional: weekly headless mode" at the bottom.
 
-**Nothing gets posted automatically.** The dashboard it produces is the
-approval checkpoint: you read it, edit anything you want by hand, and then
-change that row's Status to `Approved` in the Sheet yourself when it's
-ready to actually go out. Publishing to each platform is intentionally left
-manual — see "What stays manual" below.
+## What the app does, in plain English
 
-## What I need from you to go live
+1. You add a campaign: a name and a short brief (what's happening, key
+   message, audience, tone). Nothing else is required.
+2. Click **Generate**. It writes 3 title options, a one-line summary, a
+   ready-to-post caption + hashtags for every platform you picked, and a
+   blog draft if you asked for one.
+3. You review it on the same page, edit the brief and regenerate if needed,
+   copy any post with one click.
+4. Click **Approve** when it's ready to go out. Click **Mark published**
+   afterward purely so your own tracking is accurate — the app does not
+   have posting access to any platform, so this never actually posts
+   anything.
+5. Every action (created, generated, approved, published, edited, deleted)
+   is recorded in the **Activity log** page, so you can see exactly what
+   happened and when.
 
-1. **A Google Sheet** with a tab (default name `Campaigns`) with these
-   column headers in row 1:
+The agent will not invent campaign facts, numbers, or quotes that aren't in
+your brief — if you leave the brief empty, Generate refuses and tells you
+why instead of guessing.
 
-   | Campaign Name | Brief | Platforms | Due Date | Status | Notes |
-   |---|---|---|---|---|---|
+## Running it locally
 
-   - **Platforms**: comma-separated, any of `LinkedIn, Instagram, Facebook, X, Blog` (typos like "insta" or "fb" are auto-corrected).
-   - **Status**: leave blank or `To Do` for anything you want drafted. The agent sets it to `Drafted` when done; you set it to `Approved` when you're ready to publish.
-   - Two more columns, `Draft Link` and `Last Run`, will be added automatically by the agent's first write-back — you don't need to create them.
-
-2. **Share that Sheet with a Google service account**, and give me:
-   - The Sheet's ID (the long string in its URL).
-   - A service account JSON key with edit access to the Sheet (Google Cloud Console → IAM & Admin → Service Accounts → Create → Keys → Add key → JSON, then share the Sheet with that account's email address like you would with a person).
-
-3. **An OpenAI API key** (`OPENAI_API_KEY`) — this is what writes the actual
-   drafts. (An Anthropic key works too, as `ANTHROPIC_API_KEY` — set
-   whichever one you have; OpenAI is used automatically if both are
-   present.) Without either, the agent still runs but uses a much more
-   mechanical fallback (see `sample_data/sample_output_preview.md` for the
-   quality difference).
-
-4. Store the secrets in GitHub (repo Settings → Secrets and variables →
-   Actions): `OPENAI_API_KEY` (or `ANTHROPIC_API_KEY`), `GOOGLE_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_JSON` (paste the whole JSON key file contents), and optionally `GOOGLE_SHEET_TAB` if you don't use the name "Campaigns".
-
-Until those are set up, the weekly GitHub Action will fail at the "read the
-sheet" step — that's expected and safe; nothing partial gets published.
-
-## Running it
-
-**Weekly, automatically:** already wired up in
-`.github/workflows/weekly-content-agent.yml`, runs every Monday 08:00 UTC
-via GitHub Actions once the secrets above are set. You can also trigger it
-on demand from the repo's Actions tab ("Run workflow").
-
-**By hand, locally:**
 ```bash
 pip install -r requirements.txt
-cp .env.example .env        # fill in your keys
-python -m src.main --source sheets
+cp .env.example .env
+# edit .env: at minimum set OPENAI_API_KEY
+python -m webapp.wsgi
 ```
 
-**Demo mode (no credentials needed, uses `sample_data/sample_campaigns.csv` instead of a real Sheet):**
-```bash
-python -m src.main --source sample
-```
+Open http://127.0.0.1:5000. Data is stored in a local `webapp.db` SQLite
+file (created automatically).
 
-Either way, open `output/<today's date>/index.html` afterward to review.
+## Deploying it so you have a permanent link
 
-## The live test run in this repo
+The app is a standard Flask app with a `Procfile` and `render.yaml`, ready
+for [Render](https://render.com) (free tier works):
 
-`output/2026-08-27/` is a real run of this exact code against
-`sample_data/sample_campaigns.csv` (4 sample campaigns, one deliberately
-missing a brief to prove the validation works). Open
-`output/2026-08-27/index.html` to see it. Because no OpenAI or Anthropic key
-is available in this build environment, that run used the offline fallback
-generator — mechanical but functional. `sample_data/sample_output_preview.md`
-shows the same campaign at the quality you'll get once your API key is
-added, so you can judge the actual format and tone before we finalize it.
+1. Push this repo to GitHub (already done — you're looking at it).
+2. On Render: **New → Blueprint**, point it at this repo. It reads
+   `render.yaml` and creates the service automatically.
+3. Under the new service's **Environment** tab, set:
+   - `OPENAI_API_KEY` — your OpenAI key (required for real drafts; without it, the app still works but drafts are mechanical — see "Offline fallback" below)
+   - `APP_PASSWORD` — a shared password for your team to open the app (leave blank and **anyone with the link can use it**, not recommended)
+4. Deploy. Render gives you a permanent URL like `https://marketing-content-agent.onrender.com`.
 
-**Format confirmed:** titles → summary → per-platform captions → hashtags →
-optional blog draft, grouped by campaign, is the locked-in layout.
+**Important — storage durability:** by default the app uses a local SQLite
+file. On Render's free tier, that file resets whenever the service
+redeploys. For campaigns/drafts that must survive redeploys, add a free
+Render Postgres database and set the `DATABASE_URL` environment variable to
+its connection string — the app already reads that variable, no code
+changes needed. For light use (a handful of campaigns a week reviewed
+promptly), SQLite is fine to start with; upgrade to Postgres once you trust
+the workflow.
+
+Any other Python host (Railway, Fly.io, a VM) works the same way — install
+`requirements.txt`, run `gunicorn webapp.wsgi:app`, set the same environment
+variables.
+
+## Offline fallback (when no API key is set)
+
+If neither `OPENAI_API_KEY` nor `ANTHROPIC_API_KEY` is configured (or the
+API call fails), Generate still works but uses a template-based fallback —
+clearly labeled with an "offline fallback draft" badge on the page. It's
+functional but mechanical; add a real key for actual AI-quality copy. See
+`sample_data/sample_output_preview.md` for a side-by-side of what real AI
+output looks like versus the fallback.
 
 ## What stays manual (on purpose)
 
-- **Actually publishing** to LinkedIn/Instagram/Facebook/X. This app drafts
-  and stages content; it does not have posting credentials for any
-  platform. Wiring that up is a separate, higher-risk step (it would need
-  each platform's posting API and would post on your behalf) — happy to
-  build it once you've used the draft-and-review flow for a few weeks and
-  are comfortable with it.
-- **Writing the initial brief.** The agent will not invent campaign facts,
-  numbers, or quotes that aren't in your brief — if a brief is empty or a
-  key detail is missing, it skips the row and flags it rather than making
-  something up.
-- **Approving.** Every campaign needs a human to flip Status to `Approved`
-  in the Sheet before anyone treats it as ready to go out.
+- **Actually publishing** to LinkedIn/Instagram/Facebook/X — the app has no
+  posting credentials for any platform. "Mark published" only updates the
+  status shown in the app.
+- **Writing the initial brief** — a brief is required; the agent won't
+  invent one.
+- **Approving** — a human always clicks Approve before a campaign is
+  treated as ready to go out.
 
 ## Where things live
 
 ```
-src/                     the app
-sample_data/             demo input + a quality preview of AI-generated output
-output/<date>/           each run's drafts + review dashboard (index.html)
-logs/run_log.jsonl       one line per run: what was drafted, skipped, or errored
-.github/workflows/       the weekly GitHub Actions schedule
-.env.example             every setting you can configure, copy to .env for local runs
+webapp/                  the app: Flask routes, templates, SQLite/Postgres models
+webapp/templates/        dashboard, campaign form/detail, activity log, login
+Procfile, render.yaml    deployment config for Render (or any similar host)
+.env.example             every setting you can configure
 ```
+
+---
+
+## Optional: weekly headless mode (`src/`)
+
+An earlier, non-interactive version of this idea: reads campaigns from a
+Google Sheet, drafts them automatically every Monday via GitHub Actions,
+and produces a static review page — no login, nothing to click to trigger
+it, but also nothing to click *in* (no Approve button; you approve by
+editing the Sheet's Status column yourself). Useful only if you specifically
+want scheduled batch generation with zero interaction. If you're using the
+web app above, you don't need this.
+
+**Setup:** a Google Sheet with a `Campaigns` tab (`Campaign Name | Brief |
+Platforms | Due Date | Status | Notes`), a Google service account key
+shared on that sheet, and `OPENAI_API_KEY`/`ANTHROPIC_API_KEY` — all stored
+as GitHub Actions secrets (`GOOGLE_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_JSON`,
+`OPENAI_API_KEY`). Runs every Monday 08:00 UTC via
+`.github/workflows/weekly-content-agent.yml`, or trigger it manually:
+
+```bash
+python -m src.main --source sheets   # real run against your Sheet
+python -m src.main --source sample   # demo run, no credentials needed
+```
+
+`output/2026-08-27/index.html` is a real run of this mode against
+`sample_data/sample_campaigns.csv` (4 sample campaigns, one deliberately
+missing a brief, to show the validation working) — kept here for reference.

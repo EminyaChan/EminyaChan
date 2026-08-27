@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: marketing-content-agent
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT webapp.wsgi:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: APP_PASSWORD
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false  # leave unset to use local SQLite (resets on redeploy); set to a Postgres URL for durable storage
