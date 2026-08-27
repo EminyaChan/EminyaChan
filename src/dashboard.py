@@ -20,11 +20,13 @@ def build_dashboard(run_summary: dict, campaigns_content: list, output_path: str
 
     sections = []
     for c in campaigns_content:
-        badge = (
-            '<span class="badge fallback">offline fallback draft</span>'
-            if c["source"] == "offline-fallback"
-            else '<span class="badge ai">Claude-drafted</span>'
-        )
+        source_labels = {
+            "openai-api": "OpenAI-drafted",
+            "claude-api": "Claude-drafted",
+            "offline-fallback": "offline fallback draft",
+        }
+        badge_class = "fallback" if c["source"] == "offline-fallback" else "ai"
+        badge = f'<span class="badge {badge_class}">{source_labels.get(c["source"], c["source"])}</span>'
         warnings_html = ""
         if c["warnings"]:
             items = "".join(f"<li>{html_escape.escape(w)}</li>" for w in c["warnings"])

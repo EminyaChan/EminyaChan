@@ -36,4 +36,4 @@ Learn more and share your thoughts with us!
 #AutumnProductLaunch #Marketing #News
 
 ## Notes for the reviewer
-- Drafted with the offline fallback generator, not the Claude API (no ANTHROPIC_API_KEY configured). Expect more mechanical copy — set the key for higher-quality drafts.
+- Drafted with the offline fallback generator, not a real AI model (no OPENAI_API_KEY or ANTHROPIC_API_KEY configured). Expect more mechanical copy — set one of those keys for higher-quality drafts.

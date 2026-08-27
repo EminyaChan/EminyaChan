@@ -44,13 +44,15 @@ manual — see "What stays manual" below.
    - The Sheet's ID (the long string in its URL).
    - A service account JSON key with edit access to the Sheet (Google Cloud Console → IAM & Admin → Service Accounts → Create → Keys → Add key → JSON, then share the Sheet with that account's email address like you would with a person).
 
-3. **An Anthropic API key** (`ANTHROPIC_API_KEY`) — this is what writes the
-   actual drafts. Without it, the agent still runs but uses a much more
+3. **An OpenAI API key** (`OPENAI_API_KEY`) — this is what writes the actual
+   drafts. (An Anthropic key works too, as `ANTHROPIC_API_KEY` — set
+   whichever one you have; OpenAI is used automatically if both are
+   present.) Without either, the agent still runs but uses a much more
    mechanical fallback (see `sample_data/sample_output_preview.md` for the
    quality difference).
 
-4. Store both secrets in GitHub (repo Settings → Secrets and variables →
-   Actions): `ANTHROPIC_API_KEY`, `GOOGLE_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_JSON` (paste the whole JSON key file contents), and optionally `GOOGLE_SHEET_TAB` if you don't use the name "Campaigns".
+4. Store the secrets in GitHub (repo Settings → Secrets and variables →
+   Actions): `OPENAI_API_KEY` (or `ANTHROPIC_API_KEY`), `GOOGLE_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_JSON` (paste the whole JSON key file contents), and optionally `GOOGLE_SHEET_TAB` if you don't use the name "Campaigns".
 
 Until those are set up, the weekly GitHub Action will fail at the "read the
 sheet" step — that's expected and safe; nothing partial gets published.
@@ -81,16 +83,14 @@ Either way, open `output/<today's date>/index.html` afterward to review.
 `output/2026-08-27/` is a real run of this exact code against
 `sample_data/sample_campaigns.csv` (4 sample campaigns, one deliberately
 missing a brief to prove the validation works). Open
-`output/2026-08-27/index.html` to see it. Because no Anthropic key is
-available in this build environment, that run used the offline fallback
+`output/2026-08-27/index.html` to see it. Because no OpenAI or Anthropic key
+is available in this build environment, that run used the offline fallback
 generator — mechanical but functional. `sample_data/sample_output_preview.md`
 shows the same campaign at the quality you'll get once your API key is
 added, so you can judge the actual format and tone before we finalize it.
 
-**Please confirm:** does the format in that dashboard (titles → summary →
-per-platform captions → hashtags → optional blog draft) match what you want
-to review each week, or would you like it reshaped (e.g. grouped by
-platform instead of by campaign, or with a scheduling field)?
+**Format confirmed:** titles → summary → per-platform captions → hashtags →
+optional blog draft, grouped by campaign, is the locked-in layout.
 
 ## What stays manual (on purpose)
 

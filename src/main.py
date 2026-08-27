@@ -74,8 +74,9 @@ def run(source: str, sample_csv: str):
     rows = client.read_campaigns()
     generator, using_fallback = get_generator()
     if using_fallback:
-        print("WARNING: no working ANTHROPIC_API_KEY found — using the offline fallback "
-              "generator. Drafts will be more mechanical. Set the key in .env for real runs.")
+        print("WARNING: no working OPENAI_API_KEY or ANTHROPIC_API_KEY found — using the "
+              "offline fallback generator. Drafts will be more mechanical. Set one of "
+              "those keys in .env for real runs.")
 
     campaigns_content = []
     for i, raw_row in enumerate(rows):

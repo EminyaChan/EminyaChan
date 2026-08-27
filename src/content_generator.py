@@ -1,11 +1,13 @@
 """Turns a validated campaign brief into ready-to-publish draft content.
 
-AnthropicContentGenerator calls the real Claude API and is what should run
-in production once ANTHROPIC_API_KEY is set. OfflineFallbackGenerator kicks
-in automatically when no key is configured (or the API call fails) so the
-rest of the pipeline — validation, logging, the review dashboard — can still
-be run and demoed end-to-end. Every fallback use is logged as a warning so
-it's never mistaken for a real AI draft.
+OpenAIContentGenerator and AnthropicContentGenerator call the real APIs and
+are what should run in production once an API key is set — OpenAI is used
+automatically if OPENAI_API_KEY is set, otherwise Anthropic if
+ANTHROPIC_API_KEY is set. OfflineFallbackGenerator kicks in automatically
+when no key is configured (or the API call fails) so the rest of the
+pipeline — validation, logging, the review dashboard — can still be run and
+demoed end-to-end. Every fallback use is logged as a warning so it's never
+mistaken for a real AI draft.
 """
 import json
 import re
@@ -37,8 +39,45 @@ class GenerationResult:
         self.summary = summary
         self.posts = posts
         self.blog_draft = blog_draft
-        self.source = source  # "claude-api" or "offline-fallback"
+        self.source = source  # "openai-api", "claude-api", or "offline-fallback"
         self.warnings = warnings or []
+
+
+class OpenAIContentGenerator:
+    def __init__(self, api_key=None, model=None):
+        self.api_key = api_key or config.OPENAI_API_KEY
+        self.model = model or config.OPENAI_MODEL
+        if not self.api_key:
+            raise RuntimeError("OPENAI_API_KEY is not set.")
+        import openai
+
+        self._client = openai.OpenAI(api_key=self.api_key)
+
+    def generate(self, campaign) -> GenerationResult:
+        user_prompt = (
+            f"Campaign name: {campaign.campaign_name}\n"
+            f"Brief: {campaign.brief}\n"
+            f"Platforms requested: {', '.join(campaign.platforms)}\n"
+            f"Due date: {campaign.due_date or 'not set'}\n"
+            f"Extra notes: {campaign.notes or 'none'}"
+        )
+        response = self._client.chat.completions.create(
+            model=self.model,
+            max_tokens=2000,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+        )
+        raw_text = response.choices[0].message.content or ""
+        data = _parse_json_block(raw_text)
+        return GenerationResult(
+            title_options=data.get("title_options", []),
+            summary=data.get("summary", ""),
+            posts=data.get("posts", {}),
+            blog_draft=data.get("blog_draft", ""),
+            source="openai-api",
+        )
 
 
 class AnthropicContentGenerator:
@@ -114,9 +153,9 @@ class OfflineFallbackGenerator:
             blog_draft=blog_draft,
             source="offline-fallback",
             warnings=[
-                "Drafted with the offline fallback generator, not the Claude API "
-                "(no ANTHROPIC_API_KEY configured). Expect more mechanical copy — "
-                "set the key for higher-quality drafts."
+                "Drafted with the offline fallback generator, not a real AI model "
+                "(no OPENAI_API_KEY or ANTHROPIC_API_KEY configured). Expect more "
+                "mechanical copy — set one of those keys for higher-quality drafts."
             ],
         )
 
@@ -150,8 +189,14 @@ def _parse_json_block(text: str) -> dict:
 
 
 def get_generator():
-    """Picks the real generator when a key is configured, otherwise falls
-    back automatically. Returns (generator, used_fallback: bool)."""
+    """Picks the real generator when a key is configured — OpenAI first if
+    OPENAI_API_KEY is set, then Anthropic — otherwise falls back
+    automatically. Returns (generator, used_fallback: bool)."""
+    if config.OPENAI_API_KEY:
+        try:
+            return OpenAIContentGenerator(), False
+        except Exception:
+            pass
     if config.ANTHROPIC_API_KEY:
         try:
             return AnthropicContentGenerator(), False
