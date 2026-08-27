@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The weekly Marketing Content Agent run.
+// The daily Marketing Content Agent run.
 // 1. Reads every .csv/.json file sitting in inbox/
 // 2. Validates each campaign row (missing/messy data is skipped and logged, never guessed)
 // 3. Generates draft content (title options, summary, per-channel posts) for every valid campaign
@@ -18,7 +18,7 @@ const { appendLog } = require('./lib/log');
 const INBOX_DIR = path.join(__dirname, 'inbox');
 const ARCHIVE_DIR = path.join(INBOX_DIR, 'archive');
 
-async function runWeeklyAgent() {
+async function runDailyAgent() {
   const startedAt = new Date().toISOString();
   const runId = crypto.randomUUID();
 
@@ -45,7 +45,7 @@ async function runWeeklyAgent() {
     appendLog({
       runId,
       status: 'no_new_data',
-      message: 'No new campaign files found in inbox/. Drop a .csv or .json export in inbox/ and run again.',
+      message: 'No new campaign files found in inbox/. Drop a .csv or .json export in inbox/ before the next daily run.',
       campaignsGenerated: 0,
       campaignsSkipped: 0,
     });
@@ -85,7 +85,7 @@ async function runWeeklyAgent() {
     }
   }
 
-  // Archive processed files so the inbox is clean for next week's drop, keeping a dated audit trail.
+  // Archive processed files so the inbox is clean for tomorrow's drop, keeping a dated audit trail.
   const dateStamp = startedAt.slice(0, 10);
   const archiveSubdir = path.join(ARCHIVE_DIR, dateStamp);
   fs.mkdirSync(archiveSubdir, { recursive: true });
@@ -118,13 +118,13 @@ async function runWeeklyAgent() {
 }
 
 if (require.main === module) {
-  runWeeklyAgent()
+  runDailyAgent()
     .then(() => process.exit(0))
     .catch((err) => {
       appendLog({ status: 'error', message: err.message });
-      console.error('Weekly run failed:', err);
+      console.error('Daily run failed:', err);
       process.exit(1);
     });
 }
 
-module.exports = { runWeeklyAgent };
+module.exports = { runDailyAgent };
