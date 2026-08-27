@@ -95,8 +95,23 @@ dashboard for that run.
 
 A scheduled trigger has been set up to run the agent automatically every
 Monday. It does the drafting step only — you still open the dashboard to
-review and approve. See "What I set up for you" below for exactly how this
-is wired, and how to change the day/time.
+review and approve.
+
+**Important:** this automated Monday run happens in a cloud sandbox whose
+network policy allows `api.anthropic.com` but blocks `api.openai.com`.
+Since you're using an OpenAI key, the automated run will always use the
+built-in template generator, not real AI drafting — that's a deliberate,
+working fallback, not a bug, and you'll see "Drafted by built-in template"
+on those items. If you want genuinely AI-written drafts, run
+```
+npm run weekly
+```
+yourself on your own machine (with `OPENAI_API_KEY` in your local `.env`)
+whenever you're ready to review that week's campaigns — there's no network
+restriction there. If you later get an Anthropic key instead, put it in
+this environment's own environment-variable settings (not a committed
+file) and the automated Monday run will pick it up and start drafting with
+real AI on its own.
 
 ## 5. The run log
 
@@ -142,16 +157,23 @@ tone defaults, or file format now, before you're depending on it weekly.
 2. **Confirmation of the output format** (see above) — title options,
    summary, one post per channel, Markdown file. Say the word if you'd
    rather have plain text, a Word doc, or a different structure.
-3. **An OpenAI or Anthropic API key**, if you want AI-written drafts
-   instead of the template fallback (optional — the app runs without
-   one). You already gave me an OpenAI key — the integration is built and
-   the code path is proven to fall back safely, but I could not complete
-   a real end-to-end AI test from this sandbox because its network policy
-   blocks outbound calls to `api.openai.com`. Add the key to your own
-   `.env` when you run this on your own machine (which won't have that
-   restriction) and it will call OpenAI directly — no code changes
-   needed. Treat the key you pasted in chat as exposed since it went
-   through plaintext chat; consider rotating it in your OpenAI dashboard
+3. **Nothing further for now on the API key** — decision made: you're
+   staying on OpenAI. The integration is built and proven to fall back
+   safely (confirmed live: a real call to `api.openai.com` from this
+   sandbox got blocked by network policy, and the app correctly fell back
+   to the template and showed the exact error instead of crashing).
+   Practically, that means:
+   - The automated Monday Routine (runs in this same restricted sandbox)
+     will keep using the template fallback — real AI drafting isn't
+     reachable for OpenAI from there.
+   - Run `npm run weekly` yourself on your own machine, with your OpenAI
+     key in your local `.env`, whenever you want real AI-written drafts —
+     no restriction there.
+   - If that changes (e.g. you later get an Anthropic key), say so and
+     I'll wire it into the automated Routine — `api.anthropic.com` **is**
+     reachable from this sandbox, unlike OpenAI's.
+   Treat the two OpenAI keys you pasted in chat as exposed since they went
+   through plaintext chat; consider rotating them in your OpenAI dashboard
    before using it for real.
 4. **Brand/voice guidance**, if you have it (a style guide, banned words,
    preferred hashtags) — right now tone comes only from the `tone` column
