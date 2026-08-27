@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Marketing Content Agent</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Marketing Content Agent</h1>
+      <p>Weekly draft content, ready for your review.</p>
+    </div>
+    <div>
+      <button class="btn-primary" id="runNowBtn">Run now</button>
+    </div>
+  </header>
+  <main>
+    <div class="sidebar">
+      <h2>Runs</h2>
+      <div id="runList"></div>
+      <h2 style="margin-top:16px">Run log</h2>
+      <div id="logList"></div>
+    </div>
+    <div class="content" id="content">
+      <div class="empty">Select a run to review its drafts.</div>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
