@@ -125,25 +125,35 @@ dashboard, so you can always see what happened without digging into files.
 
 ## The live test run already in this repo
 
-The agent was run once against a realistic 4-campaign sample export
-(`inbox/sample-campaigns.csv`, now archived to `inbox/archive/`) to prove
-the whole pipeline end-to-end:
+Two sample runs are already in this repo, using made-up demo data (no real
+campaigns) so you can see the whole pipeline working before connecting
+anything real.
 
-- **3 campaigns drafted** (Autumn Product Launch, Customer Spotlight
-  Series, Partner Webinar) — each with 3 title options, a summary, and a
-  post per channel.
-- **1 row skipped on purpose** ("Regional Roadshow" — missing `goal`), to
-  prove the validator catches missing data instead of guessing.
-- **1 warning surfaced on purpose** (Partner Webinar listed "Threads" and
-  "Pinterest", which aren't in the default channel list) — it still
-  generated a generic-format post for them and flagged the warning.
-- "Autumn Product Launch" was then approved (exported to
-  `data/approved/autumn-product-launch-2026-08-27/ready-to-publish.md`)
-  and "Customer Spotlight Series" was rejected with a note, to prove both
-  paths work. "Partner Webinar" is left pending for you to try.
+**Demo run** (`inbox/demo-campaigns.csv`, now archived to `inbox/archive/`)
+— five varied campaign types, to show the range of content this agent
+handles:
 
-Run `npm start` and open http://localhost:3000 to see this run for
-yourself, or open `data/approved/autumn-product-launch-2026-08-27/ready-to-publish.md`
+- **4 campaigns drafted**, each with 3 title options, a summary, and a post
+  per channel: a toolkit download ("Back-to-Business Toolkit"), a customer
+  case study ("Customer Story: Riverbend Cafe"), an event promo ("Live
+  Product Demo Webinar"), and a referral program ("Fall Referral Bonus",
+  which included a `TikTok` channel to show a fifth platform working).
+- **1 row skipped on purpose** ("Regional Meetup Series" — missing `goal`),
+  to prove the validator catches missing data instead of guessing.
+- "Back-to-Business Toolkit" was then **approved** (exported to
+  `data/approved/back-to-business-toolkit-2026-08-27/ready-to-publish.md`)
+  and "Live Product Demo Webinar" was **rejected** with a note ("want a
+  stronger CTA before this goes out"), to prove both review paths work end
+  to end. "Customer Story" and "Fall Referral Bonus" are left pending for
+  you to try approving/rejecting yourself.
+
+An earlier, smaller sample run (`inbox/sample-campaigns.csv`) is also still
+in the repo, with its own approved output at
+`data/approved/autumn-product-launch-2026-08-27/ready-to-publish.md`.
+
+Run `npm start` and open http://localhost:3000 to see either run for
+yourself, or open
+`data/approved/back-to-business-toolkit-2026-08-27/ready-to-publish.md`
 directly to see the finished, ready-to-copy output.
 
 **The output format (title options + summary + per-channel posts, exported
