@@ -1,0 +1,247 @@
+{
+  "id": "80732352-2265-4d1a-8e08-0a23ba9cddf8",
+  "startedAt": "2026-08-27T07:46:54.971Z",
+  "finishedAt": "2026-08-27T07:46:54.981Z",
+  "status": "pending_review",
+  "filesProcessed": [
+    {
+      "file": "sample-campaigns.csv",
+      "parseError": null,
+      "validCount": 3,
+      "invalidCount": 1
+    }
+  ],
+  "items": [
+    {
+      "id": "ad85b094-4cb5-4dd4-8a91-aa717a1f3d35",
+      "sourceFile": "sample-campaigns.csv",
+      "campaign_name": "Autumn Product Launch",
+      "campaign": {
+        "campaign_name": "Autumn Product Launch",
+        "goal": "Drive signups for the new customer portal",
+        "audience": "Existing customers who manage accounts online",
+        "key_message": "The new customer portal cuts account admin time in half",
+        "offer_cta": "Get early access",
+        "channels": [
+          "LinkedIn",
+          "Instagram",
+          "Facebook",
+          "X"
+        ],
+        "tone": "confident and helpful",
+        "start_date": "2026-09-08",
+        "end_date": "2026-09-19",
+        "link": "https://example.com/portal",
+        "notes": "Screenshots of the new dashboard are in the shared drive"
+      },
+      "warnings": [],
+      "draft": {
+        "source": "template",
+        "titleOptions": [
+          "Autumn Product Launch: Drive signups for the new customer portal",
+          "Introducing Autumn Product Launch - built for Existing customers who manage accounts online",
+          "Why Existing customers who manage accounts online should care about autumn product launch"
+        ],
+        "summary": "Autumn Product Launch targets Existing customers who manage accounts online with the goal to drive signups for the new customer portal. Core message: The new customer portal cuts account admin time in half. Call to action: Get early access.",
+        "posts": [
+          {
+            "channel": "LinkedIn",
+            "caption": "The new customer portal cuts account admin time in half\n\nAutumn Product Launch is built for Existing customers who manage accounts online. Get early access https://example.com/portal",
+            "hashtags": [
+              "#autumn",
+              "#product",
+              "#launch",
+              "#customer"
+            ],
+            "suggestedDay": "Tuesday",
+            "style": "professional, 3-5 short sentences, one clear CTA"
+          },
+          {
+            "channel": "Instagram",
+            "caption": "The new customer portal cuts account admin time in half Get early access https://example.com/portal",
+            "hashtags": [
+              "#autumn",
+              "#product",
+              "#launch",
+              "#customer",
+              "#portal",
+              "#cuts",
+              "#account",
+              "#admin"
+            ],
+            "suggestedDay": "Wednesday",
+            "style": "punchy hook + value + CTA, light emoji use"
+          },
+          {
+            "channel": "Facebook",
+            "caption": "The new customer portal cuts account admin time in half Get early access https://example.com/portal",
+            "hashtags": [
+              "#autumn",
+              "#product",
+              "#launch"
+            ],
+            "suggestedDay": "Wednesday",
+            "style": "conversational, 2-4 sentences, one clear CTA"
+          },
+          {
+            "channel": "X",
+            "caption": "The new customer portal cuts account admin time in half Get early access. https://example.com/portal",
+            "hashtags": [
+              "#autumn",
+              "#product"
+            ],
+            "suggestedDay": "Thursday",
+            "style": "under 280 characters, punchy, one CTA"
+          }
+        ]
+      },
+      "status": "approved",
+      "reviewedAt": "2026-08-27T07:47:19.836Z",
+      "reviewedBy": "jlee23395@gmail.com",
+      "reviewNote": "looks good"
+    },
+    {
+      "id": "dd53cd5c-ed7c-4c7a-bf05-fdf68cddeb25",
+      "sourceFile": "sample-campaigns.csv",
+      "campaign_name": "Customer Spotlight Series",
+      "campaign": {
+        "campaign_name": "Customer Spotlight Series",
+        "goal": "Build trust with prospects using real customer results",
+        "audience": "Prospective customers evaluating us vs competitors",
+        "key_message": "Real customers are cutting reporting time by 30% with our platform",
+        "offer_cta": "Read the full story",
+        "channels": [
+          "LinkedIn",
+          "Facebook"
+        ],
+        "tone": "warm and genuine",
+        "start_date": "2026-09-15",
+        "end_date": "",
+        "link": "https://example.com/spotlight",
+        "notes": ""
+      },
+      "warnings": [],
+      "draft": {
+        "source": "template",
+        "titleOptions": [
+          "Customer Spotlight Series: Build trust with prospects using real customer results",
+          "Introducing Customer Spotlight Series - built for Prospective customers evaluating us vs competitors",
+          "Why Prospective customers evaluating us vs competitors should care about customer spotlight series"
+        ],
+        "summary": "Customer Spotlight Series targets Prospective customers evaluating us vs competitors with the goal to build trust with prospects using real customer results. Core message: Real customers are cutting reporting time by 30% with our platform. Call to action: Read the full story.",
+        "posts": [
+          {
+            "channel": "LinkedIn",
+            "caption": "Real customers are cutting reporting time by 30% with our platform\n\nCustomer Spotlight Series is built for Prospective customers evaluating us vs competitors. Read the full story https://example.com/spotlight",
+            "hashtags": [
+              "#customer",
+              "#spotlight",
+              "#series",
+              "#real"
+            ],
+            "suggestedDay": "Tuesday",
+            "style": "professional, 3-5 short sentences, one clear CTA"
+          },
+          {
+            "channel": "Facebook",
+            "caption": "Real customers are cutting reporting time by 30% with our platform Read the full story https://example.com/spotlight",
+            "hashtags": [
+              "#customer",
+              "#spotlight",
+              "#series"
+            ],
+            "suggestedDay": "Wednesday",
+            "style": "conversational, 2-4 sentences, one clear CTA"
+          }
+        ]
+      },
+      "status": "rejected",
+      "reviewedAt": "2026-08-27T07:47:19.847Z",
+      "reviewedBy": "jlee23395@gmail.com",
+      "reviewNote": "needs a stronger CTA"
+    },
+    {
+      "id": "6bf9def9-c9b0-49a2-aeff-0e8645f47f4e",
+      "sourceFile": "sample-campaigns.csv",
+      "campaign_name": "Partner Webinar",
+      "campaign": {
+        "campaign_name": "Partner Webinar",
+        "goal": "Generate qualified leads through our reseller network",
+        "audience": "Partners and their SMB customers",
+        "key_message": "Join our partners live to see how the integration works end to end",
+        "offer_cta": "Save your spot",
+        "channels": [
+          "LinkedIn",
+          "Threads",
+          "Pinterest"
+        ],
+        "tone": "professional and inviting",
+        "start_date": "2026-09-29",
+        "end_date": "",
+        "link": "https://example.com/webinar",
+        "notes": "Threads and Pinterest are not on our usual list - testing unrecognized channel handling"
+      },
+      "warnings": [
+        "unrecognized channel(s) \"Threads, Pinterest\" - a generic post format will be used for them"
+      ],
+      "draft": {
+        "source": "template",
+        "titleOptions": [
+          "Partner Webinar: Generate qualified leads through our reseller network",
+          "Introducing Partner Webinar - built for Partners and their SMB customers",
+          "Why Partners and their SMB customers should care about partner webinar"
+        ],
+        "summary": "Partner Webinar targets Partners and their SMB customers with the goal to generate qualified leads through our reseller network. Core message: Join our partners live to see how the integration works end to end. Call to action: Save your spot.",
+        "posts": [
+          {
+            "channel": "LinkedIn",
+            "caption": "Join our partners live to see how the integration works end to end\n\nPartner Webinar is built for Partners and their SMB customers. Save your spot https://example.com/webinar",
+            "hashtags": [
+              "#partner",
+              "#webinar",
+              "#join",
+              "#partners"
+            ],
+            "suggestedDay": "Tuesday",
+            "style": "professional, 3-5 short sentences, one clear CTA"
+          },
+          {
+            "channel": "Threads",
+            "caption": "Join our partners live to see how the integration works end to end Save your spot https://example.com/webinar",
+            "hashtags": [
+              "#partner",
+              "#webinar",
+              "#join"
+            ],
+            "suggestedDay": "Monday",
+            "style": "general social post"
+          },
+          {
+            "channel": "Pinterest",
+            "caption": "Join our partners live to see how the integration works end to end Save your spot https://example.com/webinar",
+            "hashtags": [
+              "#partner",
+              "#webinar",
+              "#join"
+            ],
+            "suggestedDay": "Monday",
+            "style": "general social post"
+          }
+        ]
+      },
+      "status": "pending_review",
+      "reviewedAt": null,
+      "reviewedBy": null,
+      "reviewNote": ""
+    }
+  ],
+  "skippedRows": [
+    {
+      "file": "sample-campaigns.csv",
+      "rowNumber": 4,
+      "reasons": [
+        "missing required field \"goal\""
+      ]
+    }
+  ]
+}
