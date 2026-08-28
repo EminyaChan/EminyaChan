@@ -14,8 +14,12 @@ export class GeminiTextProvider implements AITextProvider {
   }
 
   async generateText(ctx: GenerationContext): Promise<TextGenerationResult> {
+    const { systemPrompt, userPrompt } = buildPrompt(ctx);
+    return this.generateRaw(systemPrompt, userPrompt);
+  }
+
+  async generateRaw(systemPrompt: string, userPrompt: string): Promise<TextGenerationResult> {
     try {
-      const { systemPrompt, userPrompt } = buildPrompt(ctx);
       const model = this.client.getGenerativeModel({
         model: this.model,
         systemInstruction: `${systemPrompt}\n\nRespond with ONLY valid JSON, no markdown fences.`,

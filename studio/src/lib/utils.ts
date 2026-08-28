@@ -51,4 +51,21 @@ export const STATUS_LABELS: Record<string, string> = {
   GENERATED: "Generated",
   PUBLISHED: "Published",
   ARCHIVED: "Archived",
+  IDEA: "Idea",
+  AI_GENERATED: "AI Generated",
+  EDITING: "Editing",
+  PENDING_APPROVAL: "Pending Approval",
+  APPROVED: "Approved",
+  SCHEDULED: "Scheduled",
+};
+
+export const OBJECTIVE_LABELS: Record<string, string> = {
+  BRAND_AWARENESS: "Brand Awareness",
+  LEAD_GENERATION: "Lead Generation",
+  SALES: "Sales",
+  ENGAGEMENT: "Engagement",
+  TRAFFIC: "Traffic",
+  RECRUITMENT: "Recruitment",
+  PRODUCT_LAUNCH: "Product Launch",
+  EVENT_PROMOTION: "Event Promotion",
 };

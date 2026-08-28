@@ -18,6 +18,7 @@ export async function GET(req: Request) {
     const contentType = searchParams.get("contentType");
     const status = searchParams.get("status");
     const favorite = searchParams.get("favorite");
+    const campaignId = searchParams.get("campaignId");
     const sort = searchParams.get("sort") ?? "recent";
     const limit = Math.min(Number(searchParams.get("limit") ?? 50), 100);
 
@@ -27,6 +28,7 @@ export async function GET(req: Request) {
     if (contentType) where.contentType = contentType as Prisma.EnumContentTypeFilter["equals"];
     if (status) where.status = status as Prisma.EnumContentStatusFilter["equals"];
     if (favorite === "true") where.isFavorite = true;
+    if (campaignId) where.campaignId = campaignId;
     if (search) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
@@ -54,6 +56,7 @@ export async function GET(req: Request) {
 
 const saveContentSchema = z.object({
   brandId: z.string().optional().nullable(),
+  campaignId: z.string().optional().nullable(),
   title: z.string().min(1),
   platform: platformEnum,
   industry: z.string().optional().nullable(),
@@ -68,6 +71,8 @@ const saveContentSchema = z.object({
   provider: z.string().optional(),
   model: z.string().optional(),
   generationInputs: z.record(z.string(), z.unknown()).optional().nullable(),
+  contentPillar: z.string().optional().nullable(),
+  scheduledDate: z.string().optional().nullable(),
 });
 
 export async function POST(req: Request) {
@@ -75,10 +80,16 @@ export async function POST(req: Request) {
     const userId = await requireUserId();
     const input = saveContentSchema.parse(await req.json());
 
+    if (input.campaignId) {
+      const campaign = await prisma.campaign.findFirst({ where: { id: input.campaignId, userId } });
+      if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+    }
+
     const content = await prisma.content.create({
       data: {
         userId,
         brandId: input.brandId || null,
+        campaignId: input.campaignId || null,
         title: input.title,
         platform: input.platform,
         industry: input.industry || null,
@@ -86,6 +97,8 @@ export async function POST(req: Request) {
         targetAudience: input.targetAudience || null,
         status: input.status ?? "GENERATED",
         tags: input.tags,
+        contentPillar: input.contentPillar || null,
+        scheduledDate: input.scheduledDate ? new Date(input.scheduledDate) : null,
         body: input.body,
         cta: input.cta || null,
         hashtags: input.hashtags,

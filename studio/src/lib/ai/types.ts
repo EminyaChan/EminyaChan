@@ -91,6 +91,11 @@ export class ProviderCallError extends Error {
 export interface AITextProvider {
   readonly id: string;
   generateText(ctx: GenerationContext): Promise<TextGenerationResult>;
+  /** Lower-level primitive for callers that build their own prompt instead
+   *  of going through a GenerationContext (e.g. marketing strategy and
+   *  content-calendar generation, which aren't shaped like a single piece
+   *  of platform content). */
+  generateRaw(systemPrompt: string, userPrompt: string): Promise<TextGenerationResult>;
 }
 
 export interface AIImageProvider {

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { requireUserId } from "@/lib/auth/session";
 import { handleApiError } from "@/lib/apiError";
-import { contentStatusEnum } from "@/lib/validation/schemas";
+import { contentStatusEnum, contentTypeEnum, platformEnum } from "@/lib/validation/schemas";
 
 type Params = Promise<{ id: string }>;
 
@@ -37,6 +37,10 @@ const updateSchema = z.object({
   tags: z.array(z.string()).optional(),
   isFavorite: z.boolean().optional(),
   campaignId: z.string().nullable().optional(),
+  scheduledDate: z.string().nullable().optional(),
+  contentPillar: z.string().nullable().optional(),
+  platform: platformEnum.optional(),
+  contentType: contentTypeEnum.optional(),
 });
 
 export async function PATCH(req: Request, { params }: { params: Params }) {
@@ -53,9 +57,13 @@ export async function PATCH(req: Request, { params }: { params: Params }) {
       if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
+    const { scheduledDate, ...rest } = input;
     const content = await prisma.content.update({
       where: { id },
-      data: input,
+      data: {
+        ...rest,
+        ...(scheduledDate !== undefined && { scheduledDate: scheduledDate ? new Date(scheduledDate) : null }),
+      },
       include: { campaign: { select: { id: true, name: true } } },
     });
     return NextResponse.json(content);

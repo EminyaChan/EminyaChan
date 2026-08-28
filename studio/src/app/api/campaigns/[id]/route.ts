@@ -13,8 +13,9 @@ export async function GET(_req: Request, { params }: { params: Params }) {
     const campaign = await prisma.campaign.findFirst({
       where: { id, userId },
       include: {
+        strategy: true,
         contents: {
-          orderBy: { createdAt: "desc" },
+          orderBy: [{ scheduledDate: "asc" }, { createdAt: "desc" }],
           include: { images: { take: 1, orderBy: { createdAt: "desc" } }, videos: { take: 1, orderBy: { createdAt: "desc" } } },
         },
       },
@@ -42,6 +43,23 @@ export async function PATCH(req: Request, { params }: { params: Params }) {
         ...(input.description !== undefined && { description: input.description || null }),
         ...(input.status !== undefined && { status: input.status }),
         ...(input.platforms !== undefined && { platforms: input.platforms }),
+        ...(input.businessName !== undefined && { businessName: input.businessName || null }),
+        ...(input.industry !== undefined && { industry: input.industry || null }),
+        ...(input.product !== undefined && { product: input.product || null }),
+        ...(input.location !== undefined && { location: input.location || null }),
+        ...(input.targetAudience !== undefined && { targetAudience: input.targetAudience || null }),
+        ...(input.objective !== undefined && { objective: input.objective || null }),
+        ...(input.budget !== undefined && { budget: input.budget || null }),
+        ...(input.promotion !== undefined && { promotion: input.promotion || null }),
+        ...(input.startDate !== undefined && { startDate: input.startDate ? new Date(input.startDate) : null }),
+        ...(input.endDate !== undefined && { endDate: input.endDate ? new Date(input.endDate) : null }),
+        ...(input.sellingPoints !== undefined && { sellingPoints: input.sellingPoints }),
+        ...(input.competitors !== undefined && { competitors: input.competitors }),
+        ...(input.brandTone !== undefined && { brandTone: input.brandTone || null }),
+        ...(input.brandColors !== undefined && { brandColors: input.brandColors }),
+        ...(input.brandGuidelines !== undefined && { brandGuidelines: input.brandGuidelines || null }),
+        ...(input.websiteUrl !== undefined && { websiteUrl: input.websiteUrl || null }),
+        ...(input.additionalNotes !== undefined && { additionalNotes: input.additionalNotes || null }),
       },
     });
     return NextResponse.json(campaign);

@@ -84,6 +84,34 @@ export async function generateText(ctx: GenerationContext, opts: GenerateTextOpt
   }
 }
 
+export interface GenerateRawTextOutcome {
+  result?: TextGenerationResult;
+  error?: string;
+  configured: boolean;
+}
+
+/**
+ * Raw-prompt counterpart to generateText, for callers (marketing strategy,
+ * content calendar) that build their own system/user prompt instead of a
+ * GenerationContext. Unlike generateText, this does NOT fall back to the
+ * generic template provider on failure/no-config — the caller is expected
+ * to have its own domain-specific fallback, since a strategy or calendar
+ * fallback needs campaign fields, not a flattened prompt string.
+ */
+export async function generateRawText(systemPrompt: string, userPrompt: string, opts: GenerateTextOptions = {}): Promise<GenerateRawTextOutcome> {
+  const provider = resolveTextProvider(opts.preferredProvider);
+  if (!provider) {
+    return { configured: false, error: "No AI provider configured (OPENAI_API_KEY / ANTHROPIC_API_KEY / GOOGLE_GENERATIVE_AI_API_KEY)" };
+  }
+  try {
+    const result = await provider.generateRaw(systemPrompt, userPrompt);
+    return { configured: true, result };
+  } catch (err) {
+    const message = err instanceof ProviderCallError ? err.message : String(err);
+    return { configured: true, error: message };
+  }
+}
+
 export interface GenerateImageOutcome {
   result?: ImageGenerationResult;
   error?: string;

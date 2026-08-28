@@ -4,13 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Plus, Megaphone } from "lucide-react";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Input, Textarea, Select, Label, FieldGroup } from "@/components/ui/Field";
 import { apiFetch } from "@/lib/apiClient";
 import { PLATFORM_LABELS, formatDate } from "@/lib/utils";
-import { PLATFORMS } from "@/lib/constants";
 import type { CampaignDTO } from "@/lib/types";
 
 const STATUS_LABELS: Record<string, string> = { PLANNING: "Planning", ACTIVE: "Active", COMPLETED: "Completed", ARCHIVED: "Archived" };
@@ -21,112 +19,29 @@ const STATUS_TONE: Record<string, "neutral" | "primary" | "success" | "warning">
   ARCHIVED: "neutral",
 };
 
-const emptyForm = { name: "", description: "", status: "PLANNING", platforms: [] as string[] };
-
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<CampaignDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
 
-  function load() {
+  useEffect(() => {
     apiFetch<{ items: CampaignDTO[] }>("/api/campaigns")
       .then((r) => setCampaigns(r.items))
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load campaigns"))
       .finally(() => setLoading(false));
-  }
-
-  useEffect(() => {
-    load();
   }, []);
-
-  function togglePlatform(p: string) {
-    setForm((f) => ({ ...f, platforms: f.platforms.includes(p) ? f.platforms.filter((x) => x !== p) : [...f.platforms, p] }));
-  }
-
-  async function save() {
-    if (!form.name) {
-      toast.error("Campaign name is required");
-      return;
-    }
-    setSaving(true);
-    try {
-      await apiFetch("/api/campaigns", { method: "POST", body: JSON.stringify(form) });
-      toast.success("Campaign created");
-      setForm(emptyForm);
-      setCreating(false);
-      load();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
-      setSaving(false);
-    }
-  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Group content, images, and video scripts under one campaign to plan and track a push together.</p>
-        <Button size="sm" onClick={() => setCreating((v) => !v)}>
-          <Plus className="size-3.5" /> New campaign
-        </Button>
+        <p className="text-sm text-muted-foreground">
+          A campaign is a full marketing plan: brief → AI strategy → content calendar → copy → visuals → approval → schedule.
+        </p>
+        <Link href="/campaigns/new">
+          <Button size="sm">
+            <Plus className="size-3.5" /> New campaign
+          </Button>
+        </Link>
       </div>
-
-      {creating && (
-        <Card>
-          <CardHeader>
-            <CardTitle>New campaign</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <FieldGroup>
-              <Label htmlFor="cname">Campaign name</Label>
-              <Input id="cname" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. September Restaurant Promotion" />
-            </FieldGroup>
-            <FieldGroup>
-              <Label htmlFor="cdesc" hint="optional">
-                Description
-              </Label>
-              <Textarea id="cdesc" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            </FieldGroup>
-            <FieldGroup>
-              <Label htmlFor="cstatus">Status</Label>
-              <Select id="cstatus" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="max-w-xs">
-                {Object.entries(STATUS_LABELS).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </Select>
-            </FieldGroup>
-            <FieldGroup className="mb-0">
-              <Label>Platforms</Label>
-              <div className="flex flex-wrap gap-1.5">
-                {PLATFORMS.map((p) => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => togglePlatform(p.value)}
-                    className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                      form.platforms.includes(p.value) ? "border-primary bg-primary-soft text-primary" : "border-border text-muted-foreground"
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </FieldGroup>
-            <div className="mt-4 flex gap-2">
-              <Button onClick={save} loading={saving}>
-                Create campaign
-              </Button>
-              <Button variant="outline" onClick={() => setCreating(false)}>
-                Cancel
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-      )}
 
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
@@ -134,7 +49,10 @@ export default function CampaignsPage() {
         <Card>
           <CardBody className="flex flex-col items-center gap-2 py-14 text-center text-muted-foreground">
             <Megaphone className="size-8" />
-            <p className="text-sm">No campaigns yet. Group related content together to plan a launch or promotion.</p>
+            <p className="text-sm">No campaigns yet. Start with a marketing brief and let AI build the rest.</p>
+            <Link href="/campaigns/new" className="text-sm font-medium text-primary hover:underline">
+              Create your first campaign →
+            </Link>
           </CardBody>
         </Card>
       ) : (
@@ -147,11 +65,12 @@ export default function CampaignsPage() {
                     <p className="font-medium">{c.name}</p>
                     <Badge tone={STATUS_TONE[c.status]}>{STATUS_LABELS[c.status]}</Badge>
                   </div>
-                  {c.description && <p className="line-clamp-2 text-sm text-muted-foreground">{c.description}</p>}
+                  {(c.businessName || c.description) && <p className="line-clamp-2 text-sm text-muted-foreground">{c.businessName ? `${c.businessName} — ${c.industry ?? ""}` : c.description}</p>}
                   <div className="flex flex-wrap gap-1.5">
                     {c.platforms.map((p) => (
                       <Badge key={p}>{PLATFORM_LABELS[p]}</Badge>
                     ))}
+                    {c.strategy && <Badge tone="success">Strategy ready</Badge>}
                   </div>
                   <div className="flex items-center justify-between border-t border-border pt-2 text-xs text-muted-foreground">
                     <span>{c._count?.contents ?? 0} piece{(c._count?.contents ?? 0) === 1 ? "" : "s"} of content</span>
