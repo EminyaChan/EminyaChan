@@ -83,9 +83,23 @@ export interface ContentDTO {
   createdAt: string;
   updatedAt: string;
   brand?: { id: string; name: string } | null;
+  campaignId?: string | null;
+  campaign?: { id: string; name: string } | null;
   versions?: ContentVersionDTO[];
   images?: GeneratedImageDTO[];
   videos?: GeneratedVideoDTO[];
+}
+
+export interface CampaignDTO {
+  id: string;
+  name: string;
+  description: string | null;
+  status: "PLANNING" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
+  platforms: string[];
+  createdAt: string;
+  updatedAt: string;
+  _count?: { contents: number };
+  contents?: (ContentDTO & { status: string })[];
 }
 
 export interface BrandDTO {

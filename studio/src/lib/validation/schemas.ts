@@ -18,9 +18,23 @@ export const contentTypeEnum = z.enum([
   "PROMOTIONAL_COPY",
   "HEADLINE",
   "CTA",
+  "EDUCATIONAL_POST",
+  "STORYTELLING",
+  "RECRUITMENT",
+  "REVIEW",
+  "CAMPAIGN_POST",
 ]);
 
 export const contentStatusEnum = z.enum(["DRAFT", "GENERATED", "PUBLISHED", "ARCHIVED"]);
+
+export const campaignStatusEnum = z.enum(["PLANNING", "ACTIVE", "COMPLETED", "ARCHIVED"]);
+
+export const campaignSchema = z.object({
+  name: z.string().min(1, "Campaign name is required").max(200),
+  description: z.string().max(2000).optional().or(z.literal("")),
+  status: campaignStatusEnum.optional(),
+  platforms: z.array(platformEnum).default([]),
+});
 
 export const toneEnum = z.enum([
   "Professional",

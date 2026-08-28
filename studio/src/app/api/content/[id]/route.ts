@@ -15,6 +15,7 @@ export async function GET(_req: Request, { params }: { params: Params }) {
       where: { id, userId },
       include: {
         brand: true,
+        campaign: { select: { id: true, name: true } },
         versions: { orderBy: { versionNumber: "desc" } },
         images: { orderBy: { createdAt: "desc" } },
         videos: { orderBy: { createdAt: "desc" } },
@@ -35,6 +36,7 @@ const updateSchema = z.object({
   status: contentStatusEnum.optional(),
   tags: z.array(z.string()).optional(),
   isFavorite: z.boolean().optional(),
+  campaignId: z.string().nullable().optional(),
 });
 
 export async function PATCH(req: Request, { params }: { params: Params }) {
@@ -46,7 +48,16 @@ export async function PATCH(req: Request, { params }: { params: Params }) {
     const existing = await prisma.content.findFirst({ where: { id, userId } });
     if (!existing) return NextResponse.json({ error: "Content not found" }, { status: 404 });
 
-    const content = await prisma.content.update({ where: { id }, data: input });
+    if (input.campaignId) {
+      const campaign = await prisma.campaign.findFirst({ where: { id: input.campaignId, userId } });
+      if (!campaign) return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+    }
+
+    const content = await prisma.content.update({
+      where: { id },
+      data: input,
+      include: { campaign: { select: { id: true, name: true } } },
+    });
     return NextResponse.json(content);
   } catch (err) {
     return handleApiError(err);

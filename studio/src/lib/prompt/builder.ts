@@ -8,7 +8,7 @@ import type { GenerationContext } from "../ai/types";
 
 const PLATFORM_GUIDANCE: Record<string, string> = {
   XIAOHONGSHU:
-    "Write natively for Xiaohongshu (小红书). Do NOT translate Western ad copy into Chinese — write the way real Xiaohongshu creators write: personal, first-person, discovery-toned, with emoji used naturally (not excessively), short punchy paragraphs, and a title under 20 characters designed to be clicked.",
+    "Write natively for Xiaohongshu (小红书), for a Malaysian Chinese-speaking audience specifically. Do NOT translate Western ad copy into Chinese — write the way real Malaysian Xiaohongshu creators write: personal, first-person, discovery-toned, comfortable mixing in English brand/product terms and the occasional local touch the way Malaysians naturally code-switch, with emoji used naturally (not excessively), short punchy paragraphs, and a title under 20 characters designed to be clicked. Avoid Mainland-China-specific slang that wouldn't read naturally in Malaysia, and avoid stiff, overly formal or robotic-sounding AI phrasing.",
   INSTAGRAM:
     "Write for Instagram: visually descriptive, concise, with a strong first line since captions get truncated. Use line breaks for readability.",
   FACEBOOK:
@@ -25,11 +25,16 @@ const PLATFORM_GUIDANCE: Record<string, string> = {
 const CONTENT_TYPE_GUIDANCE: Record<string, string> = {
   SOCIAL_POST: "a social media post",
   ADVERTISEMENT: "paid advertisement copy designed to convert",
-  PRODUCT_DESCRIPTION: "a product description for a listing or storefront",
+  PRODUCT_DESCRIPTION: "a product introduction for a listing or storefront",
   VIDEO_SCRIPT: "a short video script broken into a hook, scenes, and a CTA",
-  PROMOTIONAL_COPY: "promotional copy announcing an offer or discount",
+  PROMOTIONAL_COPY: "a promotional post announcing an offer or discount",
   HEADLINE: "a set of punchy marketing headlines",
   CTA: "a set of call-to-action lines",
+  EDUCATIONAL_POST: "an educational post that teaches the audience something useful and ties it back to the business",
+  STORYTELLING: "a storytelling post — a narrative moment (origin story, behind-the-scenes, a customer's journey) that builds an emotional connection",
+  RECRUITMENT: "a recruitment post for an open role, written to attract qualified candidates and reflect what it's actually like to work there",
+  REVIEW: "a review-style post — either highlighting a real customer review or written in a review/testimonial voice",
+  CAMPAIGN_POST: "a post for a specific marketing campaign, tied to that campaign's theme and offer",
 };
 
 const LENGTH_GUIDANCE: Record<GenerationContext["length"], string> = {

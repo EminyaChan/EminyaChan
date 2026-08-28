@@ -8,6 +8,8 @@ import {
   Image as ImageIcon,
   Video,
   Library,
+  Star,
+  Megaphone,
   LayoutTemplate,
   Building2,
   Settings as SettingsIcon,
@@ -17,13 +19,15 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/generator", label: "AI Content Generator", icon: Sparkles },
+  { href: "/generator", label: "Create Content", icon: Sparkles },
+  { href: "/library", label: "Content History", icon: Library },
+  { href: "/saved", label: "Saved Content", icon: Star },
+  { href: "/campaigns", label: "Campaigns", icon: Megaphone },
   { href: "/images", label: "Image Generator", icon: ImageIcon },
   { href: "/videos", label: "Video Generator", icon: Video },
-  { href: "/library", label: "Content Library", icon: Library },
   { href: "/templates", label: "Templates", icon: LayoutTemplate },
   { href: "/brand", label: "Brand Settings", icon: Building2 },
-  { href: "/history", label: "Generation History", icon: History },
+  { href: "/history", label: "AI Usage Log", icon: History },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 

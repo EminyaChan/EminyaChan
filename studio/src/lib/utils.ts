@@ -34,11 +34,16 @@ export const PLATFORM_LABELS: Record<string, string> = {
 export const CONTENT_TYPE_LABELS: Record<string, string> = {
   SOCIAL_POST: "Social Post",
   ADVERTISEMENT: "Advertisement",
-  PRODUCT_DESCRIPTION: "Product Description",
-  VIDEO_SCRIPT: "Video Script",
-  PROMOTIONAL_COPY: "Promotional Copy",
+  PRODUCT_DESCRIPTION: "Product Introduction",
+  VIDEO_SCRIPT: "Short Video Script",
+  PROMOTIONAL_COPY: "Promotional Post",
   HEADLINE: "Headline",
   CTA: "Call-to-Action",
+  EDUCATIONAL_POST: "Educational Post",
+  STORYTELLING: "Storytelling",
+  RECRUITMENT: "Recruitment",
+  REVIEW: "Review",
+  CAMPAIGN_POST: "Campaign",
 };
 
 export const STATUS_LABELS: Record<string, string> = {

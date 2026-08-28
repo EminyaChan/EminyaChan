@@ -28,6 +28,32 @@ const CTA_BY_OBJECTIVE: Record<string, string[]> = {
   leads: ["Drop a comment to claim yours", "Message us for details", "Click the link in bio"],
 };
 
+// Xiaohongshu-specific hooks/titles/CTAs — written natively in Chinese with
+// a light Malaysian-Mandarin social-media register (mixed English terms,
+// casual particles), not a translation of the English copy above.
+const XHS_HOOK_STYLES = [
+  (b: string) => `真的假的，${b}也太好逛了吧`,
+  (b: string) => `跟你们说，${b}我最近逛到不想走`,
+  () => `不夸张，这是我这个月最好的发现`,
+  (b: string) => `本来只是路过，结果在${b}待了一个下午`,
+  (b: string) => `朋友一直安利我，今天终于来${b}打卡了`,
+];
+
+const XHS_TITLE_ANGLES = [
+  (b: string, p: string) => `${b}的${p}，真的被种草了`,
+  (b: string, p: string) => `${p}值得试的5个理由`,
+  (b: string, p: string, l?: string) => (l ? `${l}这家${b}也太低调了吧` : `这家${b}也太低调了吧`),
+  (b: string, p: string) => `一直在纠结要不要试${p}，冲了！`,
+  (b: string, p: string) => `${b}的${p}适合谁？看完这篇就懂`,
+];
+
+const XHS_CTA_OPTIONS = [
+  "有兴趣的话评论区约起来～",
+  "想知道详情的话，戳主页联系我们哦",
+  "评论区留言，帮你安排",
+  "先码住，下次去试试看",
+];
+
 function pick<T>(arr: T[], seed: number): T {
   return arr[seed % arr.length];
 }
@@ -114,8 +140,8 @@ function buildHashtags(ctx: GenerationContext): string[] {
 
 function buildXiaohongshuOutput(ctx: GenerationContext, seed: number) {
   const points = sellingPointsList(ctx);
-  const hook = pick(HOOK_STYLES, seed)(ctx.businessName);
-  const titles = TITLE_ANGLES.map((fn) => fn(ctx.businessName, ctx.product, ctx.location)).map((t, i) =>
+  const hook = pick(XHS_HOOK_STYLES, seed)(ctx.businessName);
+  const titles = XHS_TITLE_ANGLES.map((fn) => fn(ctx.businessName, ctx.product, ctx.location)).map((t, i) =>
     i === 0 ? `${t} 🌟` : t
   );
   const introduction = `${ctx.businessName} 主要做 ${ctx.product}${ctx.location ? `，就在 ${ctx.location}` : ""}。${ctx.productDescription ?? ""}`.trim();
@@ -124,7 +150,7 @@ function buildXiaohongshuOutput(ctx: GenerationContext, seed: number) {
     points[1] ? `而且${points[1]}，这点我很喜欢。` : "",
     ctx.promotion ? `现在还有活动：${ctx.promotion} 🔥` : "",
   ].filter(Boolean);
-  const cta = ctx.brand?.preferredCta || "评论区告诉我你的看法，想了解更多戳主页～";
+  const cta = ctx.brand?.preferredCta || pick(XHS_CTA_OPTIONS, seed + 1);
   return {
     titles,
     hook,

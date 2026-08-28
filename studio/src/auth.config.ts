@@ -7,6 +7,10 @@ import type { NextAuthConfig } from "next-auth";
 export const authConfig = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
+  // Belt-and-suspenders alongside AUTH_TRUST_HOST=true in .env: trusts the
+  // incoming Host header so auth works behind any deployment platform's
+  // proxy (Vercel, Railway, etc.) without per-platform config.
+  trustHost: true,
   providers: [],
   callbacks: {
     async jwt({ token, user }) {

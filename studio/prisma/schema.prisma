@@ -26,6 +26,7 @@ model User {
   brands            Brand[]
   contents          Content[]
   templates         Template[]
+  campaigns         Campaign[]
   generationHistory GenerationHistory[]
   settings          Settings?
 }
@@ -133,6 +134,34 @@ enum ContentType {
   PROMOTIONAL_COPY
   HEADLINE
   CTA
+  EDUCATIONAL_POST
+  STORYTELLING
+  RECRUITMENT
+  REVIEW
+  CAMPAIGN_POST
+}
+
+enum CampaignStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  status      CampaignStatus @default(PLANNING)
+  platforms   Platform[]     @default([])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  contents Content[]
+
+  @@index([userId])
 }
 
 model Content {
@@ -141,6 +170,8 @@ model Content {
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   brandId        String?
   brand          Brand?        @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  campaignId     String?
+  campaign       Campaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   title          String
   platform       Platform
   industry       String?
@@ -176,6 +207,7 @@ model Content {
   @@index([platform])
   @@index([contentType])
   @@index([status])
+  @@index([campaignId])
 }
 
 model ContentVersion {

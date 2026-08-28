@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Copy, RefreshCw, Star, FileJson, FileText, Image as ImageIcon, Video, History as HistoryIcon } from "lucide-react";
+import { Copy, RefreshCw, Star, FileJson, FileText, Image as ImageIcon, Video, History as HistoryIcon, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge, statusTone } from "@/components/ui/Badge";
 import { Select, Textarea } from "@/components/ui/Field";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { apiFetch } from "@/lib/apiClient";
 import { PLATFORM_LABELS, CONTENT_TYPE_LABELS, STATUS_LABELS, formatDateTime } from "@/lib/utils";
-import type { ContentDTO } from "@/lib/types";
+import type { CampaignDTO, ContentDTO } from "@/lib/types";
 import Link from "next/link";
 
 function downloadFile(filename: string, content: string, mime: string) {
@@ -61,7 +61,7 @@ export function ContentEditor({
     }
   }
 
-  async function updateField(field: "status" | "isFavorite", value: string | boolean) {
+  async function updateField(field: "status" | "isFavorite" | "campaignId", value: string | boolean | null) {
     setSavingField(true);
     try {
       const updated = await apiFetch<ContentDTO>(`/api/content/${content.id}`, {
@@ -115,6 +115,9 @@ export function ContentEditor({
             </button>
           </div>
         </CardHeader>
+        <div className="border-b border-border px-5 py-3">
+          <CampaignPicker content={content} onAssign={(id) => updateField("campaignId", id)} disabled={savingField} />
+        </div>
         <CardBody className="space-y-5">
           {isXhs ? (
             <XhsBody content={content} onRegenerate={regenerate} regenerating={regenerating} onCopy={copy} />
@@ -386,5 +389,56 @@ function VersionHistory({ content, onChange }: { content: ContentDTO; onChange: 
         ))}
       </CardBody>
     </Card>
+  );
+}
+
+function CampaignPicker({
+  content,
+  onAssign,
+  disabled,
+}: {
+  content: ContentDTO;
+  onAssign: (campaignId: string | null) => void;
+  disabled: boolean;
+}) {
+  const [campaigns, setCampaigns] = useState<CampaignDTO[]>([]);
+
+  useEffect(() => {
+    apiFetch<{ items: CampaignDTO[] }>("/api/campaigns")
+      .then((r) => setCampaigns(r.items))
+      .catch(() => {});
+  }, []);
+
+  if (campaigns.length === 0) {
+    return (
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Megaphone className="size-3.5" />
+        No campaigns yet —{" "}
+        <Link href="/campaigns" className="font-medium text-primary hover:underline">
+          create one
+        </Link>{" "}
+        to group this with related content.
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <Megaphone className="size-3.5 text-muted-foreground" />
+      <span className="text-xs font-medium text-muted-foreground">Campaign</span>
+      <Select
+        value={content.campaignId ?? ""}
+        disabled={disabled}
+        onChange={(e) => onAssign(e.target.value || null)}
+        className="w-auto max-w-[220px] text-xs"
+      >
+        <option value="">Not assigned</option>
+        {campaigns.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ))}
+      </Select>
+    </div>
   );
 }
