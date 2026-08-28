@@ -65,6 +65,18 @@ export interface GeneratedVideoDTO {
   createdAt: string;
 }
 
+export type ContentStatus =
+  | "DRAFT"
+  | "GENERATED"
+  | "PUBLISHED"
+  | "ARCHIVED"
+  | "IDEA"
+  | "AI_GENERATED"
+  | "EDITING"
+  | "PENDING_APPROVAL"
+  | "APPROVED"
+  | "SCHEDULED";
+
 export interface ContentDTO {
   id: string;
   title: string;
@@ -72,7 +84,7 @@ export interface ContentDTO {
   industry: string | null;
   contentType: string;
   targetAudience: string | null;
-  status: "DRAFT" | "GENERATED" | "PUBLISHED" | "ARCHIVED";
+  status: ContentStatus;
   isFavorite: boolean;
   tags: string[];
   body: string;
@@ -85,9 +97,52 @@ export interface ContentDTO {
   brand?: { id: string; name: string } | null;
   campaignId?: string | null;
   campaign?: { id: string; name: string } | null;
+  contentPillar?: string | null;
+  scheduledDate?: string | null;
   versions?: ContentVersionDTO[];
   images?: GeneratedImageDTO[];
   videos?: GeneratedVideoDTO[];
+}
+
+export type CampaignObjective =
+  | "BRAND_AWARENESS"
+  | "LEAD_GENERATION"
+  | "SALES"
+  | "ENGAGEMENT"
+  | "TRAFFIC"
+  | "RECRUITMENT"
+  | "PRODUCT_LAUNCH"
+  | "EVENT_PROMOTION";
+
+export interface AudienceProfile {
+  demographics: string;
+  interests: string;
+  painPoints: string;
+  buyingMotivations: string;
+  contentPreferences: string;
+}
+
+export interface Positioning {
+  brandPositioning: string;
+  usp: string;
+  keyMessage: string;
+  differentiation: string;
+}
+
+export interface PlatformRecommendation {
+  platform: string;
+  reason: string;
+}
+
+export interface MarketingStrategyDTO {
+  id: string;
+  campaignId: string;
+  audienceProfile: AudienceProfile | null;
+  positioning: Positioning | null;
+  contentPillars: string[];
+  recommendedPlatforms: PlatformRecommendation[] | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CampaignDTO {
@@ -96,8 +151,26 @@ export interface CampaignDTO {
   description: string | null;
   status: "PLANNING" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
   platforms: string[];
+  businessName: string | null;
+  industry: string | null;
+  product: string | null;
+  location: string | null;
+  targetAudience: string | null;
+  objective: CampaignObjective | null;
+  budget: string | null;
+  promotion: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  sellingPoints: string[];
+  competitors: string[];
+  brandTone: string | null;
+  brandColors: string[];
+  brandGuidelines: string | null;
+  websiteUrl: string | null;
+  additionalNotes: string | null;
   createdAt: string;
   updatedAt: string;
+  strategy?: MarketingStrategyDTO | { id: string } | null;
   _count?: { contents: number };
   contents?: (ContentDTO & { status: string })[];
 }

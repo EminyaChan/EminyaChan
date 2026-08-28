@@ -205,6 +205,13 @@ function buildVideoScriptOutput(ctx: GenerationContext, seed: number) {
 export class TemplateTextProvider implements AITextProvider {
   readonly id = "template";
 
+  // Not used in practice: callers that need a raw-prompt fallback (strategy,
+  // content calendar) implement their own campaign-aware template directly
+  // rather than going through this GenerationContext-shaped provider.
+  async generateRaw(): Promise<TextGenerationResult> {
+    return { text: "{}", provider: this.id, model: "template-v1", isFallback: true };
+  }
+
   async generateText(ctx: GenerationContext): Promise<TextGenerationResult> {
     const { seed } = buildVariations(ctx);
 
