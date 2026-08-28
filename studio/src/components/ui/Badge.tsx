@@ -21,12 +21,18 @@ export function Badge({ children, tone = "neutral", className }: { children: Rea
 export function statusTone(status: string): Tone {
   switch (status) {
     case "PUBLISHED":
+    case "APPROVED":
       return "success";
     case "GENERATED":
+    case "AI_GENERATED":
+    case "SCHEDULED":
       return "primary";
     case "ARCHIVED":
+    case "IDEA":
       return "neutral";
     case "DRAFT":
+    case "EDITING":
+    case "PENDING_APPROVAL":
       return "warning";
     default:
       return "neutral";

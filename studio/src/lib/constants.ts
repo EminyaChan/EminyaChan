@@ -9,11 +9,16 @@ export const PLATFORMS = [
 ];
 
 export const CONTENT_TYPES = [
+  { value: "PROMOTIONAL_COPY", label: "Promotional post" },
+  { value: "EDUCATIONAL_POST", label: "Educational post" },
+  { value: "PRODUCT_DESCRIPTION", label: "Product introduction" },
+  { value: "STORYTELLING", label: "Storytelling" },
+  { value: "RECRUITMENT", label: "Recruitment" },
+  { value: "REVIEW", label: "Review" },
+  { value: "CAMPAIGN_POST", label: "Campaign" },
+  { value: "VIDEO_SCRIPT", label: "Short video script" },
   { value: "SOCIAL_POST", label: "Social post" },
   { value: "ADVERTISEMENT", label: "Advertisement" },
-  { value: "PRODUCT_DESCRIPTION", label: "Product description" },
-  { value: "VIDEO_SCRIPT", label: "Video script" },
-  { value: "PROMOTIONAL_COPY", label: "Promotional copy" },
   { value: "HEADLINE", label: "Headline" },
   { value: "CTA", label: "CTA" },
 ];

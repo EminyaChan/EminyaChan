@@ -26,6 +26,7 @@ model User {
   brands            Brand[]
   contents          Content[]
   templates         Template[]
+  campaigns         Campaign[]
   generationHistory GenerationHistory[]
   settings          Settings?
 }
@@ -113,6 +114,16 @@ enum ContentStatus {
   GENERATED
   PUBLISHED
   ARCHIVED
+  // Campaign content-calendar lifecycle (Brief -> Strategy -> Calendar ->
+  // Content -> Approval -> Schedule -> Publish). Kept alongside the values
+  // above rather than replacing them, since quick-generate content (no
+  // campaign) still uses DRAFT/GENERATED/PUBLISHED/ARCHIVED directly.
+  IDEA
+  AI_GENERATED
+  EDITING
+  PENDING_APPROVAL
+  APPROVED
+  SCHEDULED
 }
 
 enum Platform {
@@ -133,6 +144,93 @@ enum ContentType {
   PROMOTIONAL_COPY
   HEADLINE
   CTA
+  EDUCATIONAL_POST
+  STORYTELLING
+  RECRUITMENT
+  REVIEW
+  CAMPAIGN_POST
+}
+
+enum CampaignStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum CampaignObjective {
+  BRAND_AWARENESS
+  LEAD_GENERATION
+  SALES
+  ENGAGEMENT
+  TRAFFIC
+  RECRUITMENT
+  PRODUCT_LAUNCH
+  EVENT_PROMOTION
+}
+
+// A Campaign is the marketing brief and the container for everything that
+// flows from it: Strategy -> Content Calendar -> Content (copy/visual/
+// video) -> Approval -> Schedule -> Publish. Fields below are the brief
+// itself (Step 1 of the workflow); `strategy` and `contents` are what
+// later steps attach.
+model Campaign {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  status      CampaignStatus @default(PLANNING)
+  platforms   Platform[]     @default([])
+
+  // Marketing brief
+  businessName     String?
+  industry         String?
+  product          String?
+  location         String?
+  targetAudience   String?
+  objective        CampaignObjective?
+  budget           String?
+  promotion        String?
+  startDate        DateTime?
+  endDate          DateTime?
+  sellingPoints    String[]           @default([])
+  competitors      String[]           @default([])
+  brandTone        String?
+  brandColors      String[]           @default([])
+  brandGuidelines  String?
+  websiteUrl       String?
+  additionalNotes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  strategy MarketingStrategy?
+  contents Content[]
+
+  @@index([userId])
+}
+
+// AI-generated marketing strategy (Step 2): audience analysis, positioning,
+// editable content pillars, and recommended platforms with reasoning. One
+// per campaign; regenerating replaces it in place (no version history here
+// — unlike Content, a strategy is a single working document, not a
+// publishable asset).
+model MarketingStrategy {
+  id         String   @id @default(cuid())
+  campaignId String   @unique
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  // { demographics, interests, painPoints, buyingMotivations, contentPreferences }
+  audienceProfile Json?
+  // { brandPositioning, usp, keyMessage, differentiation }
+  positioning     Json?
+  contentPillars  String[] @default([])
+  // [{ platform, reason }]
+  recommendedPlatforms Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Content {
@@ -141,6 +239,8 @@ model Content {
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   brandId        String?
   brand          Brand?        @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  campaignId     String?
+  campaign       Campaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   title          String
   platform       Platform
   industry       String?
@@ -149,6 +249,10 @@ model Content {
   status         ContentStatus @default(GENERATED)
   isFavorite     Boolean       @default(false)
   tags           String[]      @default([])
+  // Content-calendar fields (Step 3) — null for quick-generate content
+  // that isn't part of a campaign calendar.
+  scheduledDate  DateTime?
+  contentPillar  String?
 
   // Denormalized "current" body for fast list rendering — always mirrors
   // the latest ContentVersion so the library doesn't need a join to render.
@@ -176,6 +280,7 @@ model Content {
   @@index([platform])
   @@index([contentType])
   @@index([status])
+  @@index([campaignId])
 }
 
 model ContentVersion {

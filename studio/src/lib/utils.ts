@@ -34,11 +34,16 @@ export const PLATFORM_LABELS: Record<string, string> = {
 export const CONTENT_TYPE_LABELS: Record<string, string> = {
   SOCIAL_POST: "Social Post",
   ADVERTISEMENT: "Advertisement",
-  PRODUCT_DESCRIPTION: "Product Description",
-  VIDEO_SCRIPT: "Video Script",
-  PROMOTIONAL_COPY: "Promotional Copy",
+  PRODUCT_DESCRIPTION: "Product Introduction",
+  VIDEO_SCRIPT: "Short Video Script",
+  PROMOTIONAL_COPY: "Promotional Post",
   HEADLINE: "Headline",
   CTA: "Call-to-Action",
+  EDUCATIONAL_POST: "Educational Post",
+  STORYTELLING: "Storytelling",
+  RECRUITMENT: "Recruitment",
+  REVIEW: "Review",
+  CAMPAIGN_POST: "Campaign",
 };
 
 export const STATUS_LABELS: Record<string, string> = {
@@ -46,4 +51,21 @@ export const STATUS_LABELS: Record<string, string> = {
   GENERATED: "Generated",
   PUBLISHED: "Published",
   ARCHIVED: "Archived",
+  IDEA: "Idea",
+  AI_GENERATED: "AI Generated",
+  EDITING: "Editing",
+  PENDING_APPROVAL: "Pending Approval",
+  APPROVED: "Approved",
+  SCHEDULED: "Scheduled",
+};
+
+export const OBJECTIVE_LABELS: Record<string, string> = {
+  BRAND_AWARENESS: "Brand Awareness",
+  LEAD_GENERATION: "Lead Generation",
+  SALES: "Sales",
+  ENGAGEMENT: "Engagement",
+  TRAFFIC: "Traffic",
+  RECRUITMENT: "Recruitment",
+  PRODUCT_LAUNCH: "Product Launch",
+  EVENT_PROMOTION: "Event Promotion",
 };

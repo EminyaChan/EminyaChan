@@ -10,25 +10,29 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/generator", label: "AI Content Generator" },
+  { href: "/generator", label: "Create Content" },
+  { href: "/library", label: "Content History" },
+  { href: "/saved", label: "Saved Content" },
+  { href: "/campaigns", label: "Campaigns" },
   { href: "/images", label: "Image Generator" },
   { href: "/videos", label: "Video Generator" },
-  { href: "/library", label: "Content Library" },
   { href: "/templates", label: "Templates" },
   { href: "/brand", label: "Brand Settings" },
-  { href: "/history", label: "Generation History" },
+  { href: "/history", label: "AI Usage Log" },
   { href: "/settings", label: "Settings" },
 ];
 
 const TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/generator": "AI Content Generator",
+  "/generator": "Create Content",
+  "/library": "Content History",
+  "/saved": "Saved Content",
+  "/campaigns": "Campaigns",
   "/images": "Image Generator",
   "/videos": "Video Generator",
-  "/library": "Content Library",
   "/templates": "Templates",
   "/brand": "Brand Settings",
-  "/history": "Generation History",
+  "/history": "AI Usage Log",
   "/settings": "Settings",
 };
 

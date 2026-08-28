@@ -198,4 +198,15 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
     ctaStyles: ["Follow for more", "DM me the word 'START'", "Link in bio for the full story"],
     objectives: ["Grow following", "Build trust and authority", "Promote offer"],
   },
+  {
+    key: "recruitment",
+    name: "Recruitment",
+    description: "HR teams, staffing agencies, and companies hiring directly",
+    defaultTone: "Professional",
+    defaultAudience: "Job seekers matching the role's experience level and location",
+    contentAngles: ["Open role spotlight", "Life at the company", "Employee testimonial", "Hiring event"],
+    hooks: ["We're hiring — here's what the role actually looks like", "Meet the team you'd be joining"],
+    ctaStyles: ["Apply now", "DM to refer a friend", "Link in bio to apply"],
+    objectives: ["Fill open roles", "Build employer brand", "Increase qualified applicants"],
+  },
 ];

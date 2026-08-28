@@ -18,9 +18,87 @@ export const contentTypeEnum = z.enum([
   "PROMOTIONAL_COPY",
   "HEADLINE",
   "CTA",
+  "EDUCATIONAL_POST",
+  "STORYTELLING",
+  "RECRUITMENT",
+  "REVIEW",
+  "CAMPAIGN_POST",
 ]);
 
-export const contentStatusEnum = z.enum(["DRAFT", "GENERATED", "PUBLISHED", "ARCHIVED"]);
+export const contentStatusEnum = z.enum([
+  "DRAFT",
+  "GENERATED",
+  "PUBLISHED",
+  "ARCHIVED",
+  "IDEA",
+  "AI_GENERATED",
+  "EDITING",
+  "PENDING_APPROVAL",
+  "APPROVED",
+  "SCHEDULED",
+]);
+
+export const campaignStatusEnum = z.enum(["PLANNING", "ACTIVE", "COMPLETED", "ARCHIVED"]);
+
+export const campaignObjectiveEnum = z.enum([
+  "BRAND_AWARENESS",
+  "LEAD_GENERATION",
+  "SALES",
+  "ENGAGEMENT",
+  "TRAFFIC",
+  "RECRUITMENT",
+  "PRODUCT_LAUNCH",
+  "EVENT_PROMOTION",
+]);
+
+const optionalStr = (max: number) => z.string().max(max).optional().or(z.literal(""));
+
+export const campaignSchema = z.object({
+  name: z.string().min(1, "Campaign name is required").max(200),
+  description: optionalStr(2000),
+  status: campaignStatusEnum.optional(),
+  platforms: z.array(platformEnum).default([]),
+  // Marketing brief (Step 1)
+  businessName: optionalStr(200),
+  industry: optionalStr(100),
+  product: optionalStr(200),
+  location: optionalStr(200),
+  targetAudience: optionalStr(500),
+  objective: campaignObjectiveEnum.optional().nullable(),
+  budget: optionalStr(100),
+  promotion: optionalStr(500),
+  startDate: z.string().optional().nullable(),
+  endDate: z.string().optional().nullable(),
+  sellingPoints: z.array(z.string()).default([]),
+  competitors: z.array(z.string()).default([]),
+  brandTone: optionalStr(200),
+  brandColors: z.array(z.string()).default([]),
+  brandGuidelines: optionalStr(2000),
+  websiteUrl: optionalStr(300),
+  additionalNotes: optionalStr(2000),
+});
+
+export const strategySchema = z.object({
+  contentPillars: z.array(z.string()).optional(),
+  audienceProfile: z.record(z.string(), z.string()).optional(),
+  positioning: z.record(z.string(), z.string()).optional(),
+  recommendedPlatforms: z.array(z.object({ platform: z.string(), reason: z.string() })).optional(),
+});
+
+export const calendarGenerateSchema = z.object({
+  postsPerWeek: z.number().min(1).max(14).default(3),
+  platforms: z.array(platformEnum).optional(),
+  pillars: z.array(z.string()).optional(),
+});
+
+export const calendarItemUpdateSchema = z.object({
+  scheduledDate: z.string().nullable().optional(),
+  contentPillar: z.string().nullable().optional(),
+  platform: platformEnum.optional(),
+  contentType: contentTypeEnum.optional(),
+  status: contentStatusEnum.optional(),
+  title: z.string().min(1).optional(),
+});
 
 export const toneEnum = z.enum([
   "Professional",

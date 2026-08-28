@@ -21,8 +21,12 @@ export class OpenAITextProvider implements AITextProvider {
   }
 
   async generateText(ctx: GenerationContext): Promise<TextGenerationResult> {
+    const { systemPrompt, userPrompt } = buildPrompt(ctx);
+    return this.generateRaw(systemPrompt, userPrompt);
+  }
+
+  async generateRaw(systemPrompt: string, userPrompt: string): Promise<TextGenerationResult> {
     try {
-      const { systemPrompt, userPrompt } = buildPrompt(ctx);
       const res = await this.client.chat.completions.create({
         model: this.model,
         temperature: 0.9,
