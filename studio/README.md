@@ -39,7 +39,7 @@ Then set up the database:
 
 ```bash
 npx prisma migrate dev   # creates tables
-npx prisma db seed       # seeds 17 industry presets + their default templates
+npx prisma db seed       # seeds 18 industry presets + their default templates
 ```
 
 Run it:
@@ -53,6 +53,28 @@ automatically seeds your account with 5 realistic demo brands (a
 restaurant, a beauty salon, a real estate agency, a marketing agency, and
 an e-commerce brand) and their content, so the app isn't empty on first
 login.
+
+## 1b. Deploying with no computer / no terminal (e.g. from a tablet)
+
+`npm run build` (what every deploy platform runs automatically) is:
+`prisma migrate deploy && tsx prisma/seed.ts && next build` — it creates
+the tables and seeds the industry presets itself, against whatever
+`DATABASE_URL` is set in the platform's environment variables. Nothing
+needs to be run by hand.
+
+So the whole deploy, entirely from a browser, is:
+
+1. Create a free Postgres database (e.g. [Neon](https://neon.tech) or
+   [Supabase](https://supabase.com)) and copy its connection string.
+2. On [vercel.com](https://vercel.com), sign in with GitHub, import this
+   repo, and set the project's **Root Directory** to `studio`.
+3. In the project's Environment Variables, add: `DATABASE_URL` (from step
+   1), `AUTH_SECRET` (any random string), `AUTH_TRUST_HOST=true`.
+4. Click **Deploy**. Vercel runs `npm install` then `npm run build`,
+   which migrates and seeds the database as part of the build — open the
+   `https://….vercel.app` URL it gives you when done.
+
+No `npx prisma` command, no CLI, no computer required — just a browser.
 
 ## 2. The golden path
 
