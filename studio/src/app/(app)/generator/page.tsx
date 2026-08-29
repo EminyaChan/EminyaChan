@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { GeneratorForm, EMPTY_FORM, type GeneratorFormValues } from "@/components/generator/GeneratorForm";
@@ -62,6 +62,17 @@ function GeneratorPageInner() {
   const [result, setResult] = useState<GenerateResponse | null>(null);
   const [saving, setSaving] = useState<number | null>(null);
   const [savedContent, setSavedContent] = useState<ContentDTO | null>(null);
+
+  // Apply the user's saved default language (Settings page) once on load.
+  // Guarded so it only overrides the untouched initial value, never a
+  // language the user has since picked by hand.
+  useEffect(() => {
+    apiFetch<{ settings: { defaultLanguage: string } }>("/api/settings")
+      .then((res) => {
+        setValues((v) => (v.language === EMPTY_FORM.language ? { ...v, language: res.settings.defaultLanguage } : v));
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleGenerate() {
     if (!values.businessName || !values.industry || !values.product) {

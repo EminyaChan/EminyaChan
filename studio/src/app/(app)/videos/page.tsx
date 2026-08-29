@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Video, Play, Copy } from "lucide-react";
@@ -28,6 +28,14 @@ function VideoGeneratorInner() {
   const [generating, setGenerating] = useState(false);
   const [video, setVideo] = useState<GeneratedVideoDTO | null>(null);
   const [rendering, setRendering] = useState(false);
+
+  // Apply the user's saved default language (Settings page) once on load,
+  // same as the Create Content generator.
+  useEffect(() => {
+    apiFetch<{ settings: { defaultLanguage: string } }>("/api/settings")
+      .then((res) => setLanguage((l) => (l === "English" ? res.settings.defaultLanguage : l)))
+      .catch(() => {});
+  }, []);
 
   async function generate() {
     if (!product || !objective) {
